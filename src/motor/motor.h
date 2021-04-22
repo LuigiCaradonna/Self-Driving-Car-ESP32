@@ -13,7 +13,7 @@ public:
         stop
     };
 
-    Motor(uint16_t channel, uint16_t pin1, uint16_t pin2, Encoder encoder);
+    Motor(uint16_t channel1, uint16_t channel2, Encoder encoder);
 
     // Get the motor encoder
     Encoder getEncoder();
@@ -31,7 +31,7 @@ public:
     void reverse(int pwm);
 
 private:
-    const uint16_t channel, pin1, pin2;
+    const uint16_t channel1, channel2;
 
     Direction direction;
     Encoder encoder;

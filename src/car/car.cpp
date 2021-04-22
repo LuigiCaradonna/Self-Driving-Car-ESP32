@@ -5,20 +5,34 @@ Car::Car(Wheel _wheel,
          double _width,
          double _wheeltrack,
          double _wheelbase,
+         Motor _motorFR,
          Motor _motorRR,
+         Motor _motorFL,
          Motor _motorRL) : wheel(_wheel),
                            length{_length},
                            width{_width},
                            wheeltrack{_wheeltrack},
                            wheelbase{_wheelbase},
+                           motorFR{_motorFR},
                            motorRR{_motorRR},
+                           motorFL{_motorFL},
                            motorRL{_motorRL}
 {
+}
+
+Motor Car::getMotorFR()
+{
+    return motorFR;
 }
 
 Motor Car::getMotorRR()
 {
     return motorRR;
+}
+
+Motor Car::getMotorFL()
+{
+    return motorFL;
 }
 
 Motor Car::getMotorRL()

@@ -1,11 +1,9 @@
 #include <motor/motor.h>
 
-Motor::Motor(uint16_t _channel,
-             uint16_t _pin1,
-             uint16_t _pin2,
-             Encoder _encoder) : channel{_channel},
-                                 pin1{_pin1},
-                                 pin2{_pin2},
+Motor::Motor(uint16_t _channel1,
+             uint16_t _channel2,
+             Encoder _encoder) : channel1{_channel1},
+                                 channel2{_channel2},
                                  encoder{_encoder}
 {
 }
@@ -24,8 +22,8 @@ void Motor::brake()
 {
     // Set the direction to stop
     direction = Direction::stop;
-    digitalWrite(pin1, LOW);
-    digitalWrite(pin2, LOW);
+    ledcWrite(channel1, 0);
+    ledcWrite(channel2, 0);
 }
 
 void Motor::forward(int pwm)
@@ -39,9 +37,8 @@ void Motor::forward(int pwm)
 
     // Set the direction to forward
     direction = Direction::fwd;
-    ledcWrite(channel, pwm);
-    digitalWrite(pin1, LOW);
-    digitalWrite(pin2, HIGH);
+    ledcWrite(channel1, pwm);
+    ledcWrite(channel2, 0);
 }
 
 void Motor::reverse(int pwm)
@@ -55,7 +52,6 @@ void Motor::reverse(int pwm)
 
     // Set the direction to reverse
     direction = Direction::rev;
-    ledcWrite(channel, pwm);
-    digitalWrite(pin1, HIGH);
-    digitalWrite(pin2, LOW);
+    ledcWrite(channel2, 0);
+    ledcWrite(channel2, pwm);
 }

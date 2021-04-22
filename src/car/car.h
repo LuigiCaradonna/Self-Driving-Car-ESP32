@@ -9,13 +9,24 @@
 class Car
 {
 public:
-    Car(Wheel wheel, double length, double width, double wheeltrack, double wheelbase, Motor motorRR, Motor motorRL);
+    Car(
+        Wheel wheel,
+        double length,
+        double width,
+        double wheeltrack,
+        double wheelbase,
+        Motor motorFR,
+        Motor motorRR,
+        Motor motorFL,
+        Motor motorRL);
 
     // Returns how many slots must the sensors count to move the given
     // distance in centimeters
     int cmToSlots(double cm);
 
+    Motor getMotorFR();
     Motor getMotorRR();
+    Motor getMotorFL();
     Motor getMotorRL();
 
     void turnRight(double rate);
@@ -27,7 +38,7 @@ private:
     // wheeltrack is the distance between the center of the wheels on the same axle
     // wheelbase is the distance between the front and rear axles
     const double length, width, wheeltrack, wheelbase;
-    Motor motorRR, motorRL;
+    Motor motorFR, motorRR, motorFL, motorRL;
 };
 
 #endif
