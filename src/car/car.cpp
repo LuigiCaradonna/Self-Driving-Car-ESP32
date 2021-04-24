@@ -1,65 +1,128 @@
 #include <car/car.h>
 
-Car::Car(Wheel _wheel,
-         double _length,
+Car::Car(double _length,
          double _width,
          double _wheeltrack,
+         double _wheelDiameter,
          double _wheelbase,
          Motor _motorFR,
-         Motor _motorRR,
          Motor _motorFL,
-         Motor _motorRL) : wheel(_wheel),
-                           length{_length},
+         Motor _motorRR,
+         Motor _motorRL) : length{_length},
                            width{_width},
+                           wheelDiameter{_wheelDiameter},
                            wheeltrack{_wheeltrack},
                            wheelbase{_wheelbase},
                            motorFR{_motorFR},
-                           motorRR{_motorRR},
                            motorFL{_motorFL},
+                           motorRR{_motorRR},
                            motorRL{_motorRL}
 {
+    // Any encoder is fine, all the encoders have the same number of slots
+    mmPerStep = (wheelDiameter * 3.14159265358979323846) / motorRR.getEncoder().getSlots();
 }
 
+/*
+ * Getter fir the front right motor
+ * @return Motor front right motor
+ */
 Motor Car::getMotorFR()
 {
     return motorFR;
 }
 
-Motor Car::getMotorRR()
-{
-    return motorRR;
-}
-
+/*
+ * Getter fir the front left motor
+ * @return Motor front left motor
+ */
 Motor Car::getMotorFL()
 {
     return motorFL;
 }
 
+/*
+ * Getter fir the rear right motor
+ * @return Motor rear right motor
+ */
+Motor Car::getMotorRR()
+{
+    return motorRR;
+}
+
+/*
+ * Getter fir the rear left motor
+ * @return Motor rear left motor
+ */
 Motor Car::getMotorRL()
 {
     return motorRL;
 }
 
+/*
+ * Set the motor for forward movement
+ * @param int pwm value for the FR motor
+ * @param int pwm value for the FL motor
+ * @param int pwm value for the RR motor
+ * @param int pwm value for the RL motor
+ */
+void Car::forward(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
+{
+    motorFR.forward(pwmFR);
+    motorFL.forward(pwmFL);
+    motorRR.forward(pwmRR);
+    motorRL.forward(pwmRL);
+}
+
+/*
+ * Set the motor for reverse movement
+ * @param int pwm value for the FR motor
+ * @param int pwm value for the FL motor
+ * @param int pwm value for the RR motor
+ * @param int pwm value for the RL motor
+ */
+void Car::reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
+{
+    motorFR.reverse(pwmFR);
+    motorFL.reverse(pwmFL);
+    motorRR.reverse(pwmRR);
+    motorRL.reverse(pwmRL);
+}
+
+/*
+ * Stop the car
+ */
+void Car::brake()
+{
+    motorFR.brake();
+    motorFL.brake();
+    motorRR.brake();
+    motorRL.brake();
+}
+
+/*
+ * Set the motor to turn right
+ * @param double how much to turn
+ */
 void Car::turnRight(double rate)
 {
     // TODO: slow down right wheels and/or accelerate left wheels
 }
 
+/*
+ * Set the motor to turn left
+ * @param double how much to turn
+ */
 void Car::turnLeft(double rate)
 {
     // TODO: slow down left wheels and/or accelerate right wheels
 }
 
-// Returns how many slots must the sensors count to move the given
-// distance in centimeters
-int Car::cmToSlots(double cm)
+/*
+ * Given how many millimeters to move, returns how many encoedr's steps to count
+ * @param int distance in millimeters to move
+ * @return int number of encoder's slots to count
+ */
+int Car::mmToSlots(int mm)
 {
-    // Wheels' circumference in cm
-    float circumference = (wheel.getDiameter() * 3.14) / 10;
-    // cm per step (any encoder is fine, all of them have the same slots)
-    float cm_step = circumference / motorRR.getEncoder().getSlots();
-    // Result as float
-    float f_result = cm / cm_step;
-    // Convert to integer (not rounded) and return
-    return (int)f_result;
+    return (int)round(mm / mmPerStep);
 }

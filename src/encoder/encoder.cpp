@@ -1,45 +1,61 @@
 #include <encoder/encoder.h>
 
-Encoder::Encoder(int _slots) : slots{_slots}
+Encoder::Encoder(uint8_t _slots) : slots{_slots}
 {
     startTime = 0;
 }
 
-int Encoder::getSlots()
+/*
+ * Return the number of slots of the encoder
+ * @return uint8_t the number of slots of the encoder
+ */
+uint8_t Encoder::getSlots()
 {
     return slots;
 }
 
-// Given the wanted RPM returns the number of interrupt per second that is the number of times
-// that an encoder's slot activates the optocoupler sensor
+/* 
+ * Given the wanted RPM returns the number of interrupt per second that is the number of times
+ * that an encoder's slot activates the optocoupler sensor
+ * @param int rpm value to convert in nterrupt per second
+ * @return int the number of interrupts per second
+ */
 int Encoder::rpmToInterruptsPerSecond(int rpm)
 {
     double interruptsPerSecond = (rpm * slots) / 60;
     return (int)interruptsPerSecond;
 }
 
-// Given the nummber of interrupt per second coming from the optocoupler sensors returns the RPM
+/*
+ * Given the nummber of interrupt per second coming from the optocoupler sensor returns the RPM
+ * @param int interrupt per second value to convert in rpm
+ * @return int the number of rpm
+ */
 int Encoder::interruptsPerSecondToRPM(int interruptsPerSecond)
 {
     double rpm = (interruptsPerSecond * 60) / slots;
     return (int)rpm;
 }
 
-double Encoder::isr(unsigned long nowTime)
+/*
+ * Interrupt Service Routine called upon encoder's raising signal, calculates the motor's rpm
+ * after an interval of at least one complete rotation
+ * @return int the motor's rpm
+ */
+int Encoder::isr(unsigned long nowTime)
 {
-    double input = -1;
+    double rpm = -1;
     // count sufficient interrupts to get accurate timing
-    // inputX is the motor RPM
     intCount++;
     // Wait a complete rotation of the encoder
     if (intCount == slots)
     {
-        int interruptsPerSecond = (int)((double)slots * 1000 / (double)(nowTime - startTime));
-        input = interruptsPerSecondToRPM(interruptsPerSecond);
+        int interruptsPerSecond = (int)(slots * 1000 / (nowTime - startTime));
+        rpm = interruptsPerSecondToRPM(interruptsPerSecond);
         startTime = nowTime;
         // Reset the interrupt count
         intCount = 0;
     }
 
-    return input;
+    return rpm;
 }
