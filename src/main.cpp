@@ -56,25 +56,24 @@ unsigned long nowTime = 0; // updated on every loop
 unsigned long resTime = 0; // Debug only
 
 // PID
-const unsigned long SAMPLE_TIME = 100;      // time between PID updates in ms
-int setpointFR = 110;                       // setpoint is rpm
-int volatile inputFR = 0;                            // input is motor's RPM
-int outputFR = 0;                           // output is PWM calculated by PID
-int setpointFL = 110;                       // setpoint is rpm
-int volatile inputFL = 0;                            // input is motor's RPM
-int outputFL = 0;                           // output is PWM calculated by PID
-int setpointRR = 110;                       // setpoint is rpm
-int volatile inputRR = 0;                            // input is motor's RPM
-int outputRR = 0;                           // output is PWM calculated by PID
-int setpointRL = 110;                       // setpoint is rpm
-int volatile inputRL = 0;                            // input is motor's RPM
-int outputRL = 0;                           // output is PWM calculated by PID
-double aggKp = 4, aggKi = 0.2, aggKd = 0;   // Aggressive Tuning Parameters
-double conKp = 0.2, conKi = 0.2, conKd = 0; // Conservative Tuning Parameters
-PID pidMFR{&inputFR, &outputFR, &setpointFR, conKp, conKi, conKd, DIRECT};
-PID pidMFL{&inputFL, &outputFL, &setpointFL, conKp, conKi, conKd, DIRECT};
-PID pidMRR{&inputRR, &outputRR, &setpointRR, conKp, conKi, conKd, DIRECT};
-PID pidMRL{&inputRL, &outputRL, &setpointRL, conKp, conKi, conKd, DIRECT};
+const unsigned long SAMPLE_TIME = 100; // time between PID updates in ms
+int setpointFR = 110;                  // setpoint is rpm
+int volatile inputFR = 0;              // input is motor's RPM
+int outputFR = 0;                      // output is PWM calculated by PID
+int setpointFL = 110;                  // setpoint is rpm
+int volatile inputFL = 0;              // input is motor's RPM
+int outputFL = 0;                      // output is PWM calculated by PID
+int setpointRR = 110;                  // setpoint is rpm
+int volatile inputRR = 0;              // input is motor's RPM
+int outputRR = 0;                      // output is PWM calculated by PID
+int setpointRL = 110;                  // setpoint is rpm
+int volatile inputRL = 0;              // input is motor's RPM
+int outputRL = 0;                      // output is PWM calculated by PID
+double kp = 0.2, ki = 0.2, kd = 0;     // Tuning Parameters
+PID pidMFR{&inputFR, &outputFR, &setpointFR, kp, ki, kd, DIRECT};
+PID pidMFL{&inputFL, &outputFL, &setpointFL, kp, ki, kd, DIRECT};
+PID pidMRR{&inputRR, &outputRR, &setpointRR, kp, ki, kd, DIRECT};
+PID pidMRL{&inputRL, &outputRL, &setpointRL, kp, ki, kd, DIRECT};
 
 // Instantiate car parts
 Encoder encoderFR{ENC_SLOTS};
