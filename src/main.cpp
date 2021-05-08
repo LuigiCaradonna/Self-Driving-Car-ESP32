@@ -5,31 +5,34 @@
 #include <encoder/encoder.h>
 
 // Front Motors
-const uint8_t FRONT_M_EN = 5;  // Front DRV8833 SLEEP pin
 const uint8_t MOTOR_FR_1 = 18; // FR Motor IN1
 const uint8_t MOTOR_FR_2 = 19; // FR Motor IN2
 const uint8_t MOTOR_FL_1 = 32; // FL Motor IN1
 const uint8_t MOTOR_FL_2 = 33; // FL Motor IN2
 
 // Rear Motors
-const uint8_t REAR_M_EN = 25;  // Rear DRV8833 SLEEP pin
 const uint8_t MOTOR_RR_1 = 16; // RR Motor IN1
 const uint8_t MOTOR_RR_2 = 17; // RR Motor IN2
 const uint8_t MOTOR_RL_1 = 26; // RL Motor IN1
 const uint8_t MOTOR_RL_2 = 27; // RL Motor IN2
 
+// DRV8833 SLEEP pin
+// Both the drivers are connected to the same pin,
+// at the moment it is not necessary to disable them separatedly
+const uint8_t MOTORS_EN = 5;
+
 // Car's dimensions in mm
-const double CARLENGTH = 256.00;
-const double CARWIDTH = 153.00;
-const double WHEELTRACK = 128.00;    // Distance between the center of the wheels on the same axle
-const double WHEELBASE = 115.00;     // Distance between the front and rear axles
-const double WHEEL_DIAMETER = 66.00; // Wheels' diameter
+const uint16_t CARLENGTH = 256;
+const uint16_t CARWIDTH = 153;
+const uint16_t WHEELTRACK = 128;    // Distance between the center of the wheels on the same axle
+const uint16_t WHEELBASE = 115;     // Distance between the front and rear axles
+const uint8_t  WHEEL_DIAMETER = 66; // Wheels' diameter
 
 // Encoders' pins
-const uint8_t ENC_FR = 34;
-const uint8_t ENC_FL = 35;
-const uint8_t ENC_RR = 36; // sp
-const uint8_t ENC_RL = 39; // sn
+const uint8_t ENC_FR = 36; // SP
+const uint8_t ENC_FL = 39; // SN
+const uint8_t ENC_RR = 34;
+const uint8_t ENC_RL = 35; 
 
 // Number of slots of the speed encoder
 const uint8_t ENC_SLOTS = 20;
@@ -50,6 +53,7 @@ const uint8_t MIN_PWM = 170; // Make sure the motor turns
 
 // Motor timing
 unsigned long nowTime = 0; // updated on every loop
+unsigned long resTime = 0; // Debug only
 
 // PID
 const unsigned long SAMPLE_TIME = 100;      // time between PID updates in ms
@@ -84,16 +88,15 @@ Motor motorRL{PWM_CHANNEL_RL_1, PWM_CHANNEL_RL_2, encoderRL};
 Car car{CARLENGTH, CARWIDTH, WHEEL_DIAMETER, WHEELTRACK, WHEELBASE, motorFR, motorFL, motorRR, motorRL};
 
 // For debugging purpose only
-int rpmFR = 0;
-int rpmFL = 0;
-int rpmRR = 0;
-int rpmRL = 0;
+volatile int rpmFR = 0;
+volatile int rpmFL = 0;
+volatile int rpmRR = 0;
+volatile int rpmRL = 0;
 
 void initPins()
 {
   // Output pins
-  pinMode(REAR_M_EN, OUTPUT);
-  pinMode(FRONT_M_EN, OUTPUT);
+  pinMode(MOTORS_EN, OUTPUT);
   pinMode(MOTOR_FR_1, OUTPUT);
   pinMode(MOTOR_FR_2, OUTPUT);
   pinMode(MOTOR_FL_1, OUTPUT);
@@ -105,10 +108,13 @@ void initPins()
 
   // Input pins
   // Encoders
-  pinMode(ENC_FR, INPUT);
-  pinMode(ENC_FL, INPUT);
-  pinMode(ENC_RR, INPUT);
-  pinMode(ENC_RL, INPUT);
+  pinMode(ENC_FR, INPUT_PULLUP);
+  pinMode(ENC_FL, INPUT_PULLUP);
+  pinMode(ENC_RR, INPUT_PULLUP);
+  pinMode(ENC_RL, INPUT_PULLUP);
+
+  // Enable the motor drivers
+  digitalWrite(MOTORS_EN, HIGH);
 }
 
 void initPID()
@@ -128,7 +134,7 @@ void initPID()
 }
 
 // ISR called by the front right wheel encoder
-void ISR_FR()
+void IRAM_ATTR ISR_FR()
 {
   double newInput = car.getMotorFR().getEncoder().isr(nowTime);
   if (newInput != -1)
@@ -139,7 +145,7 @@ void ISR_FR()
 }
 
 // ISR called by the front left wheel encoder
-void ISR_FL()
+void IRAM_ATTR ISR_FL()
 {
   double newInput = car.getMotorFL().getEncoder().isr(nowTime);
   if (newInput != -1)
@@ -150,7 +156,7 @@ void ISR_FL()
 }
 
 // ISR called by the rear right wheel encoder
-void ISR_RR()
+void IRAM_ATTR ISR_RR()
 {
   double newInput = car.getMotorRR().getEncoder().isr(nowTime);
   if (newInput != -1)
@@ -161,7 +167,7 @@ void ISR_RR()
 }
 
 // ISR called by the rear left wheel encoder
-void ISR_RL()
+void IRAM_ATTR ISR_RL()
 {
   double newInput = car.getMotorRL().getEncoder().isr(nowTime);
   if (newInput != -1)
@@ -198,10 +204,10 @@ void initPWM()
 void initInterrupts()
 {
   // attach interrupts to the sensors pins
-  attachInterrupt(digitalPinToInterrupt(ENC_FR), ISR_FR, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENC_FL), ISR_FL, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENC_RR), ISR_RR, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENC_RL), ISR_RL, RISING);
+  attachInterrupt(ENC_FR, ISR_FR, RISING);
+  attachInterrupt(ENC_FL, ISR_FL, RISING);
+  attachInterrupt(ENC_RR, ISR_RR, RISING);
+  attachInterrupt(ENC_RL, ISR_RL, RISING);
 }
 
 void setup()
@@ -232,6 +238,19 @@ void loop()
   pidMRL.Compute();
   car.forward((int)outputFR, (int)outputFL, (int)outputRR, (int)outputRL);
 
+  // if(nowTime - resTime >= 300)
+  // {
+  //   Serial.print("Input FR: ");
+  //   Serial.print(outputFR);
+  //   Serial.print(" - Input FL: ");
+  //   Serial.print(outputFL);
+  //   Serial.print(" - Input RR: ");
+  //   Serial.println(outputRR);
+  //   Serial.print(" - Input RL: ");
+  //   Serial.println(outputRL);
+  //   resTime = nowTime;
+  // }
+  
   // debug
   if (rpmRR != 0)
   {
@@ -243,6 +262,7 @@ void loop()
     Serial.println(rpmRR);
     Serial.print(" - RL: ");
     Serial.println(rpmRL);
+  
     // reset the RPM
     rpmFR = 0;
     rpmFL = 0;

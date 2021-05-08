@@ -3,6 +3,7 @@
 Encoder::Encoder(uint8_t _slots) : slots{_slots}
 {
     startTime = 0;
+    intCount = 0;
 }
 
 /*
@@ -22,7 +23,7 @@ uint8_t Encoder::getSlots()
  */
 int Encoder::rpmToInterruptsPerSecond(int rpm)
 {
-    double interruptsPerSecond = (rpm * slots) / 60;
+    double interruptsPerSecond = (rpm * slots) / 60.00;
     return (int)interruptsPerSecond;
 }
 
@@ -33,22 +34,22 @@ int Encoder::rpmToInterruptsPerSecond(int rpm)
  */
 int Encoder::interruptsPerSecondToRPM(int interruptsPerSecond)
 {
-    double rpm = (interruptsPerSecond * 60) / slots;
+    double rpm = (interruptsPerSecond / slots) * 60.00;
     return (int)rpm;
 }
 
 /*
  * Interrupt Service Routine called upon encoder's raising signal, calculates the motor's rpm
- * after an interval of at least one complete rotation
+ * after an interval of at least half rotation of the wheel
  * @return int the motor's rpm
  */
 int Encoder::isr(unsigned long nowTime)
 {
     double rpm = -1;
-    // count sufficient interrupts to get accurate timing
+    
     intCount++;
-    // Wait a complete rotation of the encoder
-    if (intCount == slots)
+    // Wait at least half rotation of the encoder
+    if (intCount >= (slots/2))
     {
         int interruptsPerSecond = (int)(slots * 1000 / (nowTime - startTime));
         rpm = interruptsPerSecondToRPM(interruptsPerSecond);

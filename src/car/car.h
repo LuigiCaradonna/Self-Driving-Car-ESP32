@@ -11,22 +11,22 @@ class Car
 public:
     /*
      * Constructor
-     * @param double car length in mm
-     * @param double car width in mm
+     * @param uint16_t car length in mm
+     * @param uint16_t car width in mm
      * @param double wheels diameter in mm
-     * @param double wheeltrack in mm
-     * @param double wheelbase in mm
+     * @param uint16_t wheeltrack in mm
+     * @param uint16_t wheelbase in mm
      * @param Motor front right motor
      * @param Motor front left motor
      * @param Motor rear right motor
      * @param Motor rear left motor
      */
     Car(
-        double length,
-        double width,
-        double wheelDiameter,
-        double wheeltrack,
-        double wheelbase,
+        uint16_t length,
+        uint16_t width,
+        uint16_t wheeltrack,
+        uint16_t wheelbase,
+        uint8_t  wheelDiameter,
         Motor motorFR,
         Motor motorFL,
         Motor motorRR,
@@ -99,10 +99,13 @@ public:
     void turnLeft(double rate);
 
 private:
-    // Car's dimensions
+    // Car's dimensions in millimeters
     // wheeltrack is the distance between the center of the wheels on the same axle
     // wheelbase is the distance between the front and rear axles
-    const double length, width, wheelDiameter, wheeltrack, wheelbase;
+    const uint16_t length, width, wheeltrack, wheelbase;
+    const uint8_t wheelDiameter;
+    
+    // Distance in mm covered for each encoder's step
     double mmPerStep;
     Motor motorFR, motorFL, motorRR, motorRL;
 };
