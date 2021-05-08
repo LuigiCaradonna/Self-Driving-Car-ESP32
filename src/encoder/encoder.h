@@ -24,9 +24,9 @@ private:
     // Number of slots on the encoder
     const uint8_t slots;
     // Number of interrupts counted during the time interval
-    unsigned long intCount;
+    unsigned long volatile intCount;
     // Updated each time the ISR is called, it is used to calculate the time interval between interrupts
-    unsigned long startTime;
+    unsigned long volatile startTime;
 
     /* 
      * Given the wanted RPM returns the number of interrupt per second that is the number of times

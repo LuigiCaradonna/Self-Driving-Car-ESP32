@@ -24,15 +24,15 @@ const uint8_t MOTORS_EN = 5;
 // Car's dimensions in mm
 const uint16_t CARLENGTH = 256;
 const uint16_t CARWIDTH = 153;
-const uint16_t WHEELTRACK = 128;    // Distance between the center of the wheels on the same axle
-const uint16_t WHEELBASE = 115;     // Distance between the front and rear axles
-const uint8_t  WHEEL_DIAMETER = 66; // Wheels' diameter
+const uint16_t WHEELTRACK = 128;   // Distance between the center of the wheels on the same axle
+const uint16_t WHEELBASE = 115;    // Distance between the front and rear axles
+const uint8_t WHEEL_DIAMETER = 66; // Wheels' diameter
 
 // Encoders' pins
 const uint8_t ENC_FR = 36; // SP
 const uint8_t ENC_FL = 39; // SN
 const uint8_t ENC_RR = 34;
-const uint8_t ENC_RL = 35; 
+const uint8_t ENC_RL = 35;
 
 // Number of slots of the speed encoder
 const uint8_t ENC_SLOTS = 20;
@@ -57,18 +57,18 @@ unsigned long resTime = 0; // Debug only
 
 // PID
 const unsigned long SAMPLE_TIME = 100;      // time between PID updates in ms
-double setpointFR = 110;                    // setpoint is rpm
-double inputFR = 0;                         // input is motor's RPM
-double outputFR = 0;                        // output is PWM calculated by PID
-double setpointFL = 110;                    // setpoint is rpm
-double inputFL = 0;                         // input is motor's RPM
-double outputFL = 0;                        // output is PWM calculated by PID
-double setpointRR = 110;                    // setpoint is rpm
-double inputRR = 0;                         // input is motor's RPM
-double outputRR = 0;                        // output is PWM calculated by PID
-double setpointRL = 110;                    // setpoint is rpm
-double inputRL = 0;                         // input is motor's RPM
-double outputRL = 0;                        // output is PWM calculated by PID
+int setpointFR = 110;                       // setpoint is rpm
+int volatile inputFR = 0;                            // input is motor's RPM
+int outputFR = 0;                           // output is PWM calculated by PID
+int setpointFL = 110;                       // setpoint is rpm
+int volatile inputFL = 0;                            // input is motor's RPM
+int outputFL = 0;                           // output is PWM calculated by PID
+int setpointRR = 110;                       // setpoint is rpm
+int volatile inputRR = 0;                            // input is motor's RPM
+int outputRR = 0;                           // output is PWM calculated by PID
+int setpointRL = 110;                       // setpoint is rpm
+int volatile inputRL = 0;                            // input is motor's RPM
+int outputRL = 0;                           // output is PWM calculated by PID
 double aggKp = 4, aggKi = 0.2, aggKd = 0;   // Aggressive Tuning Parameters
 double conKp = 0.2, conKi = 0.2, conKd = 0; // Conservative Tuning Parameters
 PID pidMFR{&inputFR, &outputFR, &setpointFR, conKp, conKi, conKd, DIRECT};
@@ -238,19 +238,19 @@ void loop()
   pidMRL.Compute();
   car.forward((int)outputFR, (int)outputFL, (int)outputRR, (int)outputRL);
 
-  // if(nowTime - resTime >= 300)
+  // if (nowTime - resTime >= 500)
   // {
   //   Serial.print("Input FR: ");
-  //   Serial.print(outputFR);
+  //   Serial.print(rpmFR);
   //   Serial.print(" - Input FL: ");
-  //   Serial.print(outputFL);
+  //   Serial.print(rpmFL);
   //   Serial.print(" - Input RR: ");
-  //   Serial.println(outputRR);
+  //   Serial.println(rpmRR);
   //   Serial.print(" - Input RL: ");
-  //   Serial.println(outputRL);
+  //   Serial.println(rpmRL);
   //   resTime = nowTime;
   // }
-  
+
   // debug
   if (rpmRR != 0)
   {
@@ -262,7 +262,7 @@ void loop()
     Serial.println(rpmRR);
     Serial.print(" - RL: ");
     Serial.println(rpmRL);
-  
+
     // reset the RPM
     rpmFR = 0;
     rpmFL = 0;
