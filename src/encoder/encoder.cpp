@@ -48,7 +48,7 @@ int Encoder::isr(unsigned long nowTime)
     double rpm = -1;
     
     intCount++;
-    // Wait at least half rotation of the encoder
+    // Execute only after at least half rotation of the encoder since the previous execution
     if (intCount >= (slots/2))
     {
         int interruptsPerSecond = (int)(slots * 1000 / (nowTime - startTime));

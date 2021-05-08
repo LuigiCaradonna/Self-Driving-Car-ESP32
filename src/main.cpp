@@ -49,7 +49,7 @@ const uint8_t PWM_CHANNEL_RL_1 = 6; // PWM channel rear left IN1
 const uint8_t PWM_CHANNEL_RL_2 = 7; // PWM channel rear left IN2
 const uint8_t RESOLUTION = 8;       // 0 to 255
 const uint8_t MAX_PWM = 255;
-const uint8_t MIN_PWM = 170; // Make sure the motor turns
+const uint8_t MIN_PWM = 170; // Make sure the motors run
 
 // Motor timing
 unsigned long nowTime = 0; // updated on every loop
