@@ -237,19 +237,6 @@ void loop()
   pidMRL.Compute();
   car.forward((int)outputFR, (int)outputFL, (int)outputRR, (int)outputRL);
 
-  // if (nowTime - resTime >= 500)
-  // {
-  //   Serial.print("Input FR: ");
-  //   Serial.print(rpmFR);
-  //   Serial.print(" - Input FL: ");
-  //   Serial.print(rpmFL);
-  //   Serial.print(" - Input RR: ");
-  //   Serial.println(rpmRR);
-  //   Serial.print(" - Input RL: ");
-  //   Serial.println(rpmRL);
-  //   resTime = nowTime;
-  // }
-
   // debug
   if (rpmRR != 0)
   {
