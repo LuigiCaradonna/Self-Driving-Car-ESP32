@@ -12,9 +12,9 @@ Motor::Motor(uint8_t _channel1,
  * Get the encoder assigned to the motor
  * @return the encoder assigned to the motor
  */
-Encoder *Motor::getEncoder()
+Encoder &Motor::getEncoder()
 {
-    return encoder;
+    return *encoder;
 }
 
 /*

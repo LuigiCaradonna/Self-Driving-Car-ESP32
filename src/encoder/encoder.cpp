@@ -32,7 +32,7 @@ int Encoder::rpmToInterruptsPerSecond(int rpm)
  * @param int interrupt per second value to convert in rpm
  * @return int the number of rpm
  */
-int Encoder::interruptsPerSecondToRPM(int interruptsPerSecond)
+int Encoder::interruptsPerSecondToRPM(double interruptsPerSecond)
 {
     double rpm = (interruptsPerSecond / slots) * 60.00;
     return (int)rpm;
@@ -51,7 +51,7 @@ int Encoder::isr(unsigned long nowTime)
     // Execute only after at least half rotation of the encoder since the previous execution
     if (intCount >= (slots/4))
     {
-        int interruptsPerSecond = (int)(intCount / (nowTime - startTime)) * 1000;
+        double interruptsPerSecond = intCount / (nowTime - startTime) * 1000;
         rpm = interruptsPerSecondToRPM(interruptsPerSecond);
         startTime = nowTime;
         // Reset the interrupt count

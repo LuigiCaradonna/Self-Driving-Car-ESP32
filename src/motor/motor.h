@@ -19,7 +19,7 @@ public:
      * Get the encoder assigned to the motor
      * @return the encoder assigned to the motor
      */
-    Encoder *getEncoder();
+    Encoder &getEncoder();
 
     /*
      * Get the spin direction of the motor

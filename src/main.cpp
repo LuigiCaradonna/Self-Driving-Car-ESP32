@@ -49,7 +49,7 @@ const uint8_t PWM_CHANNEL_RL_1 = 6; // PWM channel rear left IN1
 const uint8_t PWM_CHANNEL_RL_2 = 7; // PWM channel rear left IN2
 const uint8_t RESOLUTION = 8;       // 0 to 255
 const uint8_t MAX_PWM = 255;
-const uint8_t MIN_PWM = 170; // Make sure the motors run
+const uint8_t MIN_PWM = 100; // Make sure the motors run
 
 // Motor timing
 unsigned long nowTime = 0; // updated on every loop
@@ -129,7 +129,7 @@ void initPID()
 // ISR called by the front right wheel encoder
 void IRAM_ATTR ISR_FR()
 {
-  double newInput = car.getMotorFR()->getEncoder()->isr(nowTime);
+  double newInput = car.getMotorFR().getEncoder().isr(nowTime);
   if (newInput != -1)
   {
     inputFR = newInput;
@@ -139,7 +139,7 @@ void IRAM_ATTR ISR_FR()
 // ISR called by the front left wheel encoder
 void IRAM_ATTR ISR_FL()
 {
-  double newInput = car.getMotorFL()->getEncoder()->isr(nowTime);
+  double newInput = car.getMotorFL().getEncoder().isr(nowTime);
   if (newInput != -1)
   {
     inputFL = newInput;
@@ -149,7 +149,7 @@ void IRAM_ATTR ISR_FL()
 // ISR called by the rear right wheel encoder
 void IRAM_ATTR ISR_RR()
 {
-  double newInput = car.getMotorRR()->getEncoder()->isr(nowTime);
+  double newInput = car.getMotorRR().getEncoder().isr(nowTime);
   if (newInput != -1)
   {
     inputRR = newInput;
@@ -159,7 +159,7 @@ void IRAM_ATTR ISR_RR()
 // ISR called by the rear left wheel encoder
 void IRAM_ATTR ISR_RL()
 {
-  double newInput = car.getMotorRL()->getEncoder()->isr(nowTime);
+  double newInput = car.getMotorRL().getEncoder().isr(nowTime);
   if (newInput != -1)
   {
     inputRL = newInput;
@@ -233,10 +233,10 @@ void loop()
   {
     Serial.print("FR: ");
     Serial.print(inputFR);
-    Serial.print(" FL: ");
-    Serial.print(inputFL);
-    Serial.println("RR: ");
-    Serial.println(inputRR);
+    Serial.print(" - FL: ");
+    Serial.println(inputFL);
+    Serial.print("RR: ");
+    Serial.print(inputRR);
     Serial.print(" - RL: ");
     Serial.println(inputRL);
 

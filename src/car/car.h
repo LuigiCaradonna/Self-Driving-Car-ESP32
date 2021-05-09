@@ -35,25 +35,25 @@ public:
      * Getter fir the front right motor
      * @return Motor front right motor
      */
-    Motor *getMotorFR();
+    Motor &getMotorFR();
 
     /*
      * Getter fir the front left motor
      * @return Motor front left motor
      */
-    Motor *getMotorFL();
+    Motor &getMotorFL();
 
     /*
      * Getter fir the rear right motor
      * @return Motor rear right motor
      */
-    Motor *getMotorRR();
+    Motor &getMotorRR();
 
     /*
      * Getter fir the rear left motor
      * @return Motor rear left motor
      */
-    Motor *getMotorRL();
+    Motor &getMotorRL();
 
     /*
      * Given how many millimeters to move, returns how many encoedr's steps to count
