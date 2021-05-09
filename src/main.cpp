@@ -86,12 +86,6 @@ Motor motorRR{PWM_CHANNEL_RR_1, PWM_CHANNEL_RR_2, &encoderRR};
 Motor motorRL{PWM_CHANNEL_RL_1, PWM_CHANNEL_RL_2, &encoderRL};
 Car car{CARLENGTH, CARWIDTH, WHEELTRACK, WHEELBASE, WHEEL_DIAMETER, &motorFR, &motorFL, &motorRR, &motorRL};
 
-// For debugging purpose only
-volatile int rpmFR = 0;
-volatile int rpmFL = 0;
-volatile int rpmRR = 0;
-volatile int rpmRL = 0;
-
 void initPins()
 {
   // Output pins
@@ -135,44 +129,40 @@ void initPID()
 // ISR called by the front right wheel encoder
 void IRAM_ATTR ISR_FR()
 {
-  double newInput = car.getMotorFR().getEncoder().isr(nowTime);
+  double newInput = car.getMotorFR()->getEncoder()->isr(nowTime);
   if (newInput != -1)
   {
     inputFR = newInput;
-    rpmFR = newInput;
   }
 }
 
 // ISR called by the front left wheel encoder
 void IRAM_ATTR ISR_FL()
 {
-  double newInput = car.getMotorFL().getEncoder().isr(nowTime);
+  double newInput = car.getMotorFL()->getEncoder()->isr(nowTime);
   if (newInput != -1)
   {
     inputFL = newInput;
-    rpmFL = newInput;
   }
 }
 
 // ISR called by the rear right wheel encoder
 void IRAM_ATTR ISR_RR()
 {
-  double newInput = car.getMotorRR().getEncoder().isr(nowTime);
+  double newInput = car.getMotorRR()->getEncoder()->isr(nowTime);
   if (newInput != -1)
   {
     inputRR = newInput;
-    rpmRR = newInput;
   }
 }
 
 // ISR called by the rear left wheel encoder
 void IRAM_ATTR ISR_RL()
 {
-  double newInput = car.getMotorRL().getEncoder().isr(nowTime);
+  double newInput = car.getMotorRL()->getEncoder()->isr(nowTime);
   if (newInput != -1)
   {
     inputRL = newInput;
-    rpmRL = newInput;
   }
 }
 
@@ -238,21 +228,18 @@ void loop()
   car.forward((int)outputFR, (int)outputFL, (int)outputRR, (int)outputRL);
 
   // debug
-  if (rpmRR != 0)
+  // Print the motors' rpm each half a second
+  if (nowTime - resTime > 500)
   {
     Serial.print("FR: ");
-    Serial.print(rpmFR);
-    Serial.print("FL: ");
-    Serial.print(rpmFL);
-    Serial.print(" - RR: ");
-    Serial.println(rpmRR);
+    Serial.print(inputFR);
+    Serial.print(" FL: ");
+    Serial.print(inputFL);
+    Serial.println("RR: ");
+    Serial.println(inputRR);
     Serial.print(" - RL: ");
-    Serial.println(rpmRL);
+    Serial.println(inputRL);
 
-    // reset the RPM
-    rpmFR = 0;
-    rpmFL = 0;
-    rpmRR = 0;
-    rpmRL = 0;
+    resTime = nowTime;
   }
 }

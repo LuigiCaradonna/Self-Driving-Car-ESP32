@@ -19,43 +19,43 @@ Car::Car(uint16_t _length,
                             motorRL{_motorRL}
 {
     // Any encoder is fine, all the encoders have the same number of slots
-    mmPerStep = (wheelDiameter * 3.14159265358979323846) / motorRR->getEncoder().getSlots();
+    mmPerStep = (wheelDiameter * 3.14159265358979323846) / motorRR->getEncoder()->getSlots();
 }
 
 /*
  * Getter for the front right motor
  * @return Motor front right motor
  */
-Motor Car::getMotorFR()
+Motor *Car::getMotorFR()
 {
-    return *motorFR;
+    return motorFR;
 }
 
 /*
  * Getter for the front left motor
  * @return Motor front left motor
  */
-Motor Car::getMotorFL()
+Motor *Car::getMotorFL()
 {
-    return *motorFL;
+    return motorFL;
 }
 
 /*
  * Getter for the rear right motor
  * @return Motor rear right motor
  */
-Motor Car::getMotorRR()
+Motor *Car::getMotorRR()
 {
-    return *motorRR;
+    return motorRR;
 }
 
 /*
  * Getter for the rear left motor
  * @return Motor rear left motor
  */
-Motor Car::getMotorRL()
+Motor *Car::getMotorRL()
 {
-    return *motorRL;
+    return motorRL;
 }
 
 /*
