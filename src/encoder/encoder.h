@@ -5,7 +5,7 @@
 class Encoder
 {
 public:
-    Encoder(uint8_t slots);
+    Encoder(uint8_t);
 
     /*
      * Return the number of slots of the encoder
@@ -15,10 +15,10 @@ public:
 
     /*
      * Interrupt Service Routine called upon encoder's raising signal, calculates the motor's rpm
-     * after an interval of at least one complete rotation
-     * @return int the motor's rpm
+     * after an interval of at least 1/4 of a complete rotation of the wheel
+     * @return int the motor's rpm, -1 if a new value is not yet ready
      */
-    int isr(unsigned long nowTime);
+    int isr(unsigned long);
 
 private:
     // Number of slots on the encoder
@@ -34,14 +34,14 @@ private:
      * @param int rpm value to convert in nterrupt per second
      * @return int the number of interrupts per second
      */
-    int rpmToInterruptsPerSecond(int rpm);
+    int rpmToInterruptsPerSecond(int);
 
     /*
      * Given the nummber of interrupt per second coming from the optocoupler sensor returns the RPM
      * @param int interrupt per second value to convert in rpm
      * @return int the number of rpm
      */
-    int interruptsPerSecondToRPM(int interruptsPerSecond);
+    int interruptsPerSecondToRPM(int);
 };
 
 #endif

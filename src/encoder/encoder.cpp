@@ -40,8 +40,8 @@ int Encoder::interruptsPerSecondToRPM(int interruptsPerSecond)
 
 /*
  * Interrupt Service Routine called upon encoder's raising signal, calculates the motor's rpm
- * after an interval of at least half rotation of the wheel
- * @return int the motor's rpm
+ * after an interval of at least 1/4 of a rotation of the wheel
+ * @return int the motor's rpm, -1 if a new value is not yet ready
  */
 int Encoder::isr(unsigned long nowTime)
 {
@@ -49,7 +49,7 @@ int Encoder::isr(unsigned long nowTime)
     
     intCount++;
     // Execute only after at least half rotation of the encoder since the previous execution
-    if (intCount >= (slots/2))
+    if (intCount >= (slots/4))
     {
         int interruptsPerSecond = (int)(slots * 1000 / (nowTime - startTime));
         rpm = interruptsPerSecondToRPM(interruptsPerSecond);

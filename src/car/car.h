@@ -21,35 +21,34 @@ public:
      * @param Motor rear right motor
      * @param Motor rear left motor
      */
-    Car(
-        uint16_t length,
-        uint16_t width,
-        uint16_t wheeltrack,
-        uint16_t wheelbase,
-        uint8_t  wheelDiameter,
-        Motor motorFR,
-        Motor motorFL,
-        Motor motorRR,
-        Motor motorRL);
+    Car(uint16_t,
+        uint16_t,
+        uint16_t,
+        uint16_t,
+        uint8_t,
+        Motor *,
+        Motor *,
+        Motor *,
+        Motor *);
 
     /*
      * Getter fir the front right motor
      * @return Motor front right motor
      */
     Motor getMotorFR();
-    
+
     /*
      * Getter fir the front left motor
      * @return Motor front left motor
      */
     Motor getMotorFL();
-    
+
     /*
      * Getter fir the rear right motor
      * @return Motor rear right motor
      */
     Motor getMotorRR();
-    
+
     /*
      * Getter fir the rear left motor
      * @return Motor rear left motor
@@ -61,7 +60,7 @@ public:
      * @param int distance in millimeters to move
      * @return int number of encoder's slots to count
      */
-    int mmToSlots(int mm);
+    int mmToSlots(int);
 
     /*
      * Set the motor for forward movement
@@ -70,7 +69,7 @@ public:
      * @param int pwm value for the RR motor
      * @param int pwm value for the RL motor
      */
-    void forward(int pwmFR, int pwmFL, int pwmRR, int pwmRL);
+    void forward(int, int, int, int);
 
     /*
      * Set the motor for reverse movement
@@ -79,7 +78,7 @@ public:
      * @param int pwm value for the RR motor
      * @param int pwm value for the RL motor
      */
-    void reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL);
+    void reverse(int, int, int, int);
 
     /*
      * Stop the car
@@ -90,13 +89,13 @@ public:
      * Set the motor to turn right
      * @param double how much to turn
      */
-    void turnRight(double rate);
+    void turnRight(double);
 
     /*
      * Set the motor to turn left
      * @param double how much to turn
      */
-    void turnLeft(double rate);
+    void turnLeft(double);
 
 private:
     // Car's dimensions in millimeters
@@ -104,10 +103,10 @@ private:
     // wheelbase is the distance between the front and rear axles
     const uint16_t length, width, wheeltrack, wheelbase;
     const uint8_t wheelDiameter;
-    
+
     // Distance in mm covered for each encoder's step
     double mmPerStep;
-    Motor motorFR, motorFL, motorRR, motorRL;
+    Motor *motorFR, *motorFL, *motorRR, *motorRL;
 };
 
 #endif

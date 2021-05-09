@@ -13,7 +13,7 @@ public:
         stop
     };
 
-    Motor(uint8_t channel1, uint8_t channel2, Encoder encoder);
+    Motor(uint8_t, uint8_t, Encoder *);
 
     /*
      * Get the encoder assigned to the motor
@@ -34,22 +34,22 @@ public:
 
     /*
      * Set the motor for forward movement
-     * @param the pwm value for the spinning sped
+     * @param the pwm value for the spinning speed
      */
-    void forward(int pwm);
+    void forward(int);
 
     /*
      * Set the the motor for reverse movement
-     * @param the pwm value for the spinning sped
+     * @param the pwm value for the spinning speed
      */
-    void reverse(int pwm);
+    void reverse(int);
 
 private:
     const uint8_t channel1, channel2;
     const uint8_t DELAY_CHANGE_DIRECTION = 20; // ms to wait after braking to change direction
 
     Direction direction;
-    Encoder encoder;
+    Encoder *encoder;
 };
 
 #endif

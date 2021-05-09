@@ -4,58 +4,58 @@ Car::Car(uint16_t _length,
          uint16_t _width,
          uint16_t _wheeltrack,
          uint16_t _wheelbase,
-         uint8_t  _wheelDiameter,
-         Motor _motorFR,
-         Motor _motorFL,
-         Motor _motorRR,
-         Motor _motorRL) : length{_length},
-                           width{_width},
-                           wheeltrack{_wheeltrack},
-                           wheelbase{_wheelbase},
-                           wheelDiameter{_wheelDiameter},
-                           motorFR{_motorFR},
-                           motorFL{_motorFL},
-                           motorRR{_motorRR},
-                           motorRL{_motorRL}
+         uint8_t _wheelDiameter,
+         Motor *_motorFR,
+         Motor *_motorFL,
+         Motor *_motorRR,
+         Motor *_motorRL) : length{_length},
+                            width{_width},
+                            wheeltrack{_wheeltrack},
+                            wheelbase{_wheelbase},
+                            wheelDiameter{_wheelDiameter},
+                            motorFR{_motorFR},
+                            motorFL{_motorFL},
+                            motorRR{_motorRR},
+                            motorRL{_motorRL}
 {
     // Any encoder is fine, all the encoders have the same number of slots
-    mmPerStep = (wheelDiameter * 3.14159265358979323846) / motorRR.getEncoder().getSlots();
+    mmPerStep = (wheelDiameter * 3.14159265358979323846) / motorRR->getEncoder().getSlots();
 }
 
 /*
- * Getter fir the front right motor
+ * Getter for the front right motor
  * @return Motor front right motor
  */
 Motor Car::getMotorFR()
 {
-    return motorFR;
+    return *motorFR;
 }
 
 /*
- * Getter fir the front left motor
+ * Getter for the front left motor
  * @return Motor front left motor
  */
 Motor Car::getMotorFL()
 {
-    return motorFL;
+    return *motorFL;
 }
 
 /*
- * Getter fir the rear right motor
+ * Getter for the rear right motor
  * @return Motor rear right motor
  */
 Motor Car::getMotorRR()
 {
-    return motorRR;
+    return *motorRR;
 }
 
 /*
- * Getter fir the rear left motor
+ * Getter for the rear left motor
  * @return Motor rear left motor
  */
 Motor Car::getMotorRL()
 {
-    return motorRL;
+    return *motorRL;
 }
 
 /*
@@ -67,12 +67,11 @@ Motor Car::getMotorRL()
  */
 void Car::forward(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
 {
-    motorFR.forward(pwmFR);
-    motorFL.forward(pwmFL);
-    motorRR.forward(pwmRR);
-    motorRL.forward(pwmRL);
+    motorFR->forward(pwmFR);
+    motorFL->forward(pwmFL);
+    motorRR->forward(pwmRR);
+    motorRL->forward(pwmRL);
 }
-
 /*
  * Set the motor for reverse movement
  * @param int pwm value for the FR motor
@@ -82,10 +81,10 @@ void Car::forward(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
  */
 void Car::reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
 {
-    motorFR.reverse(pwmFR);
-    motorFL.reverse(pwmFL);
-    motorRR.reverse(pwmRR);
-    motorRL.reverse(pwmRL);
+    motorFR->reverse(pwmFR);
+    motorFL->reverse(pwmFL);
+    motorRR->reverse(pwmRR);
+    motorRL->reverse(pwmRL);
 }
 
 /*
@@ -93,10 +92,10 @@ void Car::reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
  */
 void Car::brake()
 {
-    motorFR.brake();
-    motorFL.brake();
-    motorRR.brake();
-    motorRL.brake();
+    motorFR->brake();
+    motorFL->brake();
+    motorRR->brake();
+    motorRL->brake();
 }
 
 /*

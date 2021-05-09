@@ -80,11 +80,11 @@ Encoder encoderFR{ENC_SLOTS};
 Encoder encoderFL{ENC_SLOTS};
 Encoder encoderRR{ENC_SLOTS};
 Encoder encoderRL{ENC_SLOTS};
-Motor motorFR{PWM_CHANNEL_FR_1, PWM_CHANNEL_FR_2, encoderFR};
-Motor motorFL{PWM_CHANNEL_FL_1, PWM_CHANNEL_FL_2, encoderFL};
-Motor motorRR{PWM_CHANNEL_RR_1, PWM_CHANNEL_RR_2, encoderRR};
-Motor motorRL{PWM_CHANNEL_RL_1, PWM_CHANNEL_RL_2, encoderRL};
-Car car{CARLENGTH, CARWIDTH, WHEEL_DIAMETER, WHEELTRACK, WHEELBASE, motorFR, motorFL, motorRR, motorRL};
+Motor motorFR{PWM_CHANNEL_FR_1, PWM_CHANNEL_FR_2, &encoderFR};
+Motor motorFL{PWM_CHANNEL_FL_1, PWM_CHANNEL_FL_2, &encoderFL};
+Motor motorRR{PWM_CHANNEL_RR_1, PWM_CHANNEL_RR_2, &encoderRR};
+Motor motorRL{PWM_CHANNEL_RL_1, PWM_CHANNEL_RL_2, &encoderRL};
+Car car{CARLENGTH, CARWIDTH, WHEELTRACK, WHEELBASE, WHEEL_DIAMETER, &motorFR, &motorFL, &motorRR, &motorRL};
 
 // For debugging purpose only
 volatile int rpmFR = 0;

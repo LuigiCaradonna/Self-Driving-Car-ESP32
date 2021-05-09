@@ -2,9 +2,9 @@
 
 Motor::Motor(uint8_t _channel1,
              uint8_t _channel2,
-             Encoder _encoder) : channel1{_channel1},
-                                 channel2{_channel2},
-                                 encoder{_encoder}
+             Encoder *_encoder) : channel1{_channel1},
+                                  channel2{_channel2},
+                                  encoder{_encoder}
 {
 }
 
@@ -14,7 +14,7 @@ Motor::Motor(uint8_t _channel1,
  */
 Encoder Motor::getEncoder()
 {
-    return encoder;
+    return *encoder;
 }
 
 /*
