@@ -9,8 +9,9 @@
 class Car
 {
 public:
-    /*
-     * Constructor
+    /**
+     * Constructor.
+     * 
      * @param uint16_t car length in mm
      * @param uint16_t car width in mm
      * @param double wheels diameter in mm
@@ -26,44 +27,50 @@ public:
         uint16_t,
         uint16_t,
         uint8_t,
-        Motor *,
-        Motor *,
-        Motor *,
-        Motor *);
+        Motor &,
+        Motor &,
+        Motor &,
+        Motor &);
 
-    /*
-     * Getter fir the front right motor
+    /**
+     * Getter for the front right motor.
+     * 
      * @return Motor front right motor
      */
     Motor &getMotorFR();
 
-    /*
-     * Getter fir the front left motor
+    /**
+     * Getter for the front left motor.
+     * 
      * @return Motor front left motor
      */
     Motor &getMotorFL();
 
-    /*
-     * Getter fir the rear right motor
+    /**
+     * Getter for the rear right motor.
+     * 
      * @return Motor rear right motor
      */
     Motor &getMotorRR();
 
-    /*
-     * Getter fir the rear left motor
+    /**
+     * Getter for the rear left motor.
+     * 
      * @return Motor rear left motor
      */
     Motor &getMotorRL();
 
-    /*
-     * Given how many millimeters to move, returns how many encoedr's steps to count
+    /**
+     * Given how many millimeters to move, returns how many encoedr's steps to count.
+     * 
      * @param int distance in millimeters to move
      * @return int number of encoder's slots to count
      */
     int mmToSlots(int);
 
-    /*
-     * Set the motor for forward movement
+    /**
+     * Set the motor for forward movement.
+     * 
      * @param int pwm value for the FR motor
      * @param int pwm value for the FL motor
      * @param int pwm value for the RR motor
@@ -71,8 +78,9 @@ public:
      */
     void forward(int, int, int, int);
 
-    /*
-     * Set the motor for reverse movement
+    /**
+     * Set the motor for reverse movement.
+     * 
      * @param int pwm value for the FR motor
      * @param int pwm value for the FL motor
      * @param int pwm value for the RR motor
@@ -80,33 +88,37 @@ public:
      */
     void reverse(int, int, int, int);
 
-    /*
+    /**
      * Stop the car
      */
     void brake();
 
-    /*
-     * Set the motor to turn right
+    /**
+     * Set the motor to turn right.
+     * 
      * @param double how much to turn
      */
     void turnRight(double);
 
-    /*
-     * Set the motor to turn left
+    /**
+     * Set the motor to turn left.
+     * 
      * @param double how much to turn
      */
     void turnLeft(double);
 
 private:
-    // Car's dimensions in millimeters
-    // wheeltrack is the distance between the center of the wheels on the same axle
-    // wheelbase is the distance between the front and rear axles
+    /**
+     * Car's dimensions in millimeters 
+     * wheeltrack is the distance between the center of the wheels on the same axle 
+     * wheelbase is the distance between the front and rear axles
+     */
     const uint16_t length, width, wheeltrack, wheelbase;
     const uint8_t wheelDiameter;
 
     // Distance in mm covered for each encoder's step
     double mmPerStep;
-    Motor *motorFR, *motorFL, *motorRR, *motorRL;
+    Motor &motorFR, &motorFL, &motorRR, &motorRL;
 };
 
 #endif
