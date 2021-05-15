@@ -20,7 +20,7 @@ public:
      * 
      * @return int the motor's rpm, -1 if a new value is not yet ready
      */
-    int isr(unsigned long);
+    int16_t isr(unsigned long);
 
 private:
     // Number of slots on the encoder
@@ -37,7 +37,7 @@ private:
      * @param int rpm value to convert in nterrupt per second
      * @return int the number of interrupts per second
      */
-    int rpmToInterruptsPerSecond(int);
+    uint16_t rpmToInterruptsPerSecond(uint16_t);
 
     /**
      * Given the number of interrupt per second coming from the optocoupler sensor returns the RPM
@@ -45,7 +45,7 @@ private:
      * @param int interrupt per second value to convert in rpm
      * @return int the number of rpm
      */
-    int interruptsPerSecondToRPM(double);
+    uint16_t interruptsPerSecondToRPM(double);
 };
 
 #endif

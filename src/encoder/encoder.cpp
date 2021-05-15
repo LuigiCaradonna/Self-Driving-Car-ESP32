@@ -11,21 +11,21 @@ uint8_t Encoder::getSlots()
     return slots;
 }
 
-int Encoder::rpmToInterruptsPerSecond(int rpm)
+uint16_t Encoder::rpmToInterruptsPerSecond(uint16_t rpm)
 {
     double interruptsPerSecond = (rpm * slots) / 60.00;
-    return (int)interruptsPerSecond;
+    return (uint16_t)interruptsPerSecond;
 }
 
-int Encoder::interruptsPerSecondToRPM(double interruptsPerSecond)
+uint16_t Encoder::interruptsPerSecondToRPM(double interruptsPerSecond)
 {
     double rpm = (interruptsPerSecond / slots) * 60.00;
-    return (int)rpm;
+    return (uint16_t)rpm;
 }
 
-int Encoder::isr(unsigned long nowTime)
+int16_t Encoder::isr(unsigned long nowTime)
 {
-    int rpm = -1;
+    uint16_t rpm = -1;
     
     intCount++;
     
@@ -35,7 +35,6 @@ int Encoder::isr(unsigned long nowTime)
         double timeDiff = nowTime - startTime;
         double interruptsPerSecond = intCount / (timeDiff) * 1000;
         rpm = interruptsPerSecondToRPM(interruptsPerSecond);
-
         startTime = nowTime;
 
         // Reset the interrupt count

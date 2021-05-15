@@ -2,6 +2,7 @@
 #define PID_v1_h
 #define LIBRARY_VERSION 1.2.1
 
+#include "Arduino.h"
 class PID
 {
 
@@ -15,11 +16,11 @@ public:
 #define P_ON_E 1
 
     //commonly used functions **************************************************************************
-    PID(volatile int *, int *, int *,      // * constructor.  links the PID to the Input, Output, and
+    PID(volatile int16_t *, uint16_t *, uint16_t *,      // * constructor.  links the PID to the Input, Output, and
         double, double, double, int, int); //   Setpoint.  Initial tuning parameters are also set here.
                                            //   (overload for specifying proportional mode)
 
-    PID(volatile int *, int *, int *, // * constructor.  links the PID to the Input, Output, and
+    PID(volatile int16_t *, uint16_t *, uint16_t *, // * constructor.  links the PID to the Input, Output, and
         double, double, double, int); //   Setpoint.  Initial tuning parameters are also set here
 
     void SetMode(int Mode); // * sets PID to either Manual (0) or Auto (non-0)
@@ -68,9 +69,9 @@ private:
     int controllerDirection;
     int pOn;
 
-    volatile int *myInput;    // * Pointers to the Input, Output, and Setpoint variables
-    int *myOutput;   //   This creates a hard link between the variables and the
-    int *mySetpoint; //   PID, freeing the user from having to constantly tell us
+    volatile int16_t *myInput;    // * Pointers to the Input, Output, and Setpoint variables
+    uint16_t *myOutput;   //   This creates a hard link between the variables and the
+    uint16_t *mySetpoint; //   PID, freeing the user from having to constantly tell us
                      //   what these values are.  with pointers we'll just know.
 
     unsigned long lastTime;

@@ -1,7 +1,6 @@
 #ifndef CAR
 #define CAR
 #include <map>
-#include <string>
 #include "Arduino.h"
 #include <motor/motor.h>
 #include <math.h>

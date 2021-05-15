@@ -5,14 +5,13 @@
  * This Library is licensed under the MIT License
  **********************************************************************************************/
 
-#include "Arduino.h"
 #include <pid/pid.h>
 
 /*Constructor (...)*********************************************************
- *    The parameters specified here are those for for which we can't set up
+ *    The parameters specified here are those for which we can't set up
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
-PID::PID(volatile int *Input, int *Output, int *Setpoint,
+PID::PID(volatile int16_t *Input, uint16_t *Output, uint16_t *Setpoint,
          double Kp, double Ki, double Kd, int POn, int ControllerDirection)
 {
     myOutput = Output;
@@ -36,7 +35,7 @@ PID::PID(volatile int *Input, int *Output, int *Setpoint,
  *    to use Proportional on Error without explicitly saying so
  ***************************************************************************/
 
-PID::PID(volatile int *Input, int *Output, int *Setpoint,
+PID::PID(volatile int16_t *Input, uint16_t *Output, uint16_t *Setpoint,
          double Kp, double Ki, double Kd, int ControllerDirection)
     : PID::PID(Input, Output, Setpoint, Kp, Ki, Kd, P_ON_E, ControllerDirection)
 {
