@@ -1,6 +1,5 @@
-#ifndef CAR
-#define CAR
-#include <map>
+#ifndef CAR_H
+#define CAR_H
 #include "Arduino.h"
 #include <motor/motor.h>
 #include <math.h>
@@ -13,9 +12,11 @@ public:
      * 
      * @param uint16_t car length in mm
      * @param uint16_t car width in mm
-     * @param double wheels diameter in mm
      * @param uint16_t wheeltrack in mm
      * @param uint16_t wheelbase in mm
+     * @param uint8_t wheels diameter in mm
+     * @param uint8_t max pwm duty cycle
+     * @param uint8_t min pwm duty cycle
      * @param Motor front right motor
      * @param Motor front left motor
      * @param Motor rear right motor
@@ -26,6 +27,8 @@ public:
         uint16_t,
         uint16_t,
         uint8_t,
+        uint8_t,
+        uint8_t,
         Motor &,
         Motor &,
         Motor &,
@@ -34,28 +37,28 @@ public:
     /**
      * Getter for the front right motor.
      * 
-     * @return Motor front right motor
+     * @return front right motor
      */
     Motor &getMotorFR();
 
     /**
      * Getter for the front left motor.
      * 
-     * @return Motor front left motor
+     * @return front left motor
      */
     Motor &getMotorFL();
 
     /**
      * Getter for the rear right motor.
      * 
-     * @return Motor rear right motor
+     * @return rear right motor
      */
     Motor &getMotorRR();
 
     /**
      * Getter for the rear left motor.
      * 
-     * @return Motor rear left motor
+     * @return rear left motor
      */
     Motor &getMotorRL();
 
@@ -63,12 +66,28 @@ public:
      * Given how many millimeters to move, returns how many encoedr's steps to count.
      * 
      * @param int distance in millimeters to move
-     * @return int number of encoder's slots to count
+     * @return the number of encoder's slots to count
      */
     int mmToSlots(int);
 
     /**
-     * Set the motor for forward movement.
+     * Given the rpm (avg if more motors with different rpm are running) calculates the speed in m/s.
+     * 
+     * @param int rpm
+     * @return the speed in m/s
+     */
+    double rpmToMs(int);
+
+    /**
+     * Given the rpm (avg if more motors with different rpm are running) calculates the speed in Km/h.
+     * 
+     * @param int rpm
+     * @return the speed in m/s
+     */
+    double rpmToKmh(int);
+
+    /**
+     * Set the motors for forward movement.
      * 
      * @param int pwm value for the FR motor
      * @param int pwm value for the FL motor
@@ -78,7 +97,7 @@ public:
     void forward(int, int, int, int);
 
     /**
-     * Set the motor for reverse movement.
+     * Set the motors for reverse movement.
      * 
      * @param int pwm value for the FR motor
      * @param int pwm value for the FL motor
@@ -93,14 +112,14 @@ public:
     void brake();
 
     /**
-     * Set the motor to turn right.
+     * Set the motors to turn right.
      * 
      * @param double how much to turn
      */
     void turnRight(double);
 
     /**
-     * Set the motor to turn left.
+     * Set the motors to turn left.
      * 
      * @param double how much to turn
      */
@@ -113,11 +132,25 @@ private:
      * wheelbase is the distance between the front and rear axles
      */
     const uint16_t length, width, wheeltrack, wheelbase;
-    const uint8_t wheelDiameter;
+    const uint8_t wheelDiameter, maxPwm, minPwm;
 
     // Distance in mm covered for each encoder's step
     double mmPerStep;
+    // References to the motors instances
     Motor &motorFR, &motorFL, &motorRR, &motorRL;
+
+    /**
+     * Given a speed ratio as a percentage from 0 to 100 or as a 0.0 to 1.0 interval, calculates 
+     * the corresponding PWM duty cycle relative to the max value provided to the class constructor. 
+     * The method also takes care to do not return a value lower than the minimum 
+     * provided to the class constructor, unless it has to return 0 which is an acceptable value. 
+     * 
+     * WARNING: If you want a speed of 0% you should use the brake() method instead.
+     * 
+     * @param double the wanted speed in percentage (0 to 100, or 0.0 to 1.0)
+     * @return the duty cycle to set for the PWM pins to have the wanted speed
+     */
+    int speedRatioToPwm(double);
 };
 
 #endif

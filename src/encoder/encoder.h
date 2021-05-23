@@ -1,5 +1,5 @@
-#ifndef ENCODER
-#define ENCODER
+#ifndef ENCODER_H
+#define ENCODER_H
 #include "Arduino.h"
 
 class Encoder
@@ -18,7 +18,7 @@ public:
      * Interrupt Service Routine called upon encoder's raising signal, calculates the motor's rpm 
      * after an interval of at least 1/4 of a complete rotation of the wheel
      * 
-     * @return int the motor's rpm, -1 if a new value is not yet ready
+     * @return the motor's rpm, -1 if a new value is not yet ready
      */
     int16_t isr(unsigned long);
 
