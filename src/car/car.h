@@ -89,20 +89,20 @@ public:
     /**
      * Set the motors for forward movement.
      * 
-     * @param int pwm value for the FR motor
-     * @param int pwm value for the FL motor
-     * @param int pwm value for the RR motor
-     * @param int pwm value for the RL motor
+     * @param int pwm value for the Front Right motor
+     * @param int pwm value for the Front Left motor
+     * @param int pwm value for the Rear Right motor
+     * @param int pwm value for the Rear Left motor
      */
     void forward(int, int, int, int);
 
     /**
      * Set the motors for reverse movement.
      * 
-     * @param int pwm value for the FR motor
-     * @param int pwm value for the FL motor
-     * @param int pwm value for the RR motor
-     * @param int pwm value for the RL motor
+     * @param int pwm value for the Front Right motor
+     * @param int pwm value for the Front Left motor
+     * @param int pwm value for the Rear Right motor
+     * @param int pwm value for the Rear Left motor
      */
     void reverse(int, int, int, int);
 
@@ -125,6 +125,20 @@ public:
      */
     void turnLeft(double);
 
+    /**
+     * Given a speed ratio as an interval from 0.0 (stop) to 1.0 (full throttle), calculates 
+     * the corresponding PWM duty cycle relative to the max value provided to the class constructor. 
+     * Negative values can be provided, they will be converted to positive. 
+     * The method also takes care to do not return a value lower than the minimum 
+     * provided to the class constructor, unless it has to return 0 which is an acceptable value. 
+     * 
+     * WARNING: When you want a speed of 0 you should use the Car::brake() method to stop the car.
+     * 
+     * @param double the wanted speed ratio in the interval 0.0 (stop) to 1.0 (full throttle)
+     * @return the duty cycle to set for the PWM pins to have the wanted speed
+     */
+    int speedRatioToPwm(double);
+    
 private:
     /**
      * Car's dimensions in millimeters 
@@ -138,19 +152,6 @@ private:
     double mmPerStep;
     // References to the motors instances
     Motor &motorFR, &motorFL, &motorRR, &motorRL;
-
-    /**
-     * Given a speed ratio as a percentage from 0 to 100 or as a 0.0 to 1.0 interval, calculates 
-     * the corresponding PWM duty cycle relative to the max value provided to the class constructor. 
-     * The method also takes care to do not return a value lower than the minimum 
-     * provided to the class constructor, unless it has to return 0 which is an acceptable value. 
-     * 
-     * WARNING: If you want a speed of 0% you should use the brake() method instead.
-     * 
-     * @param double the wanted speed in percentage (0 to 100, or 0.0 to 1.0)
-     * @return the duty cycle to set for the PWM pins to have the wanted speed
-     */
-    int speedRatioToPwm(double);
 };
 
 #endif

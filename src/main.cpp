@@ -263,8 +263,8 @@ void reconnect(const char *mqttServer)
 void callback(char *topic, byte *payload, unsigned int length)
 {
   String messageTemp;
-  int value;
-
+  double value;
+  
   Serial.print("Message arrived on topic: ");
   Serial.println(topic);
   Serial.print("Message: ");
@@ -275,7 +275,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     messageTemp += (char)payload[i];
   }
 
-  value = messageTemp.toInt();
+  value = messageTemp.toDouble();
 
   Serial.println();
 
@@ -285,19 +285,36 @@ void callback(char *topic, byte *payload, unsigned int length)
   if (String(topic) == "Deviation")
   {
     /*
+     * Values close (to decide how close) to 0 -> go straight
      * Positive value -> turn right
      * Negative value -> turn left
-     * Values close (to decide how close) to 0 -> go straight
      */
+
   }
-  // Speed says the speed in percentage
+  // Speed says the speed in percentage, acceptable range format: -1.0 to 1.0
   else if (String(topic) == "Speed")
   {
     /*
+     * 0 -> stop
      * Positive value -> move forward
      * Negative value -> move backward
-     * 0 -> stop
      */
+
+    int pwm = car.speedRatioToPwm(value);
+
+    // move the car
+    if(value == 0)
+    {
+      car.brake();
+    }
+    else if (value > 0)
+    {
+      car.forward(pwm, pwm, pwm, pwm);
+    }
+    else
+    {
+      car.reverse(pwm, pwm, pwm, pwm);
+    }
   }
 }
 
@@ -350,14 +367,14 @@ void printRpm()
   Serial.println();
 }
 
-void reconnect() 
+void reconnect()
 {
   // Loop until we're reconnected
-  while (!mqttClient.connected()) 
+  while (!mqttClient.connected())
   {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (mqttClient.connect("ESP8266Client")) 
+    if (mqttClient.connect("ESP8266Client"))
     {
       Serial.println("connected");
 
@@ -394,9 +411,6 @@ void loop()
   // Get the current timestamp
   nowTime = millis();
   elapsedTime = nowTime - startTime;
-
-  // Move the car forward
-  car.forward(pwmFR, pwmFL, pwmRR, pwmRL);
 
   // Debug
   // Print the motors' rpm each half a second

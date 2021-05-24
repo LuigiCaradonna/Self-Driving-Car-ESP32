@@ -73,6 +73,8 @@ void Car::brake()
 void Car::turnRight(double rate)
 {
     // TODO: slow down right wheels and/or accelerate left wheels
+
+    // Raggio curvatura = (VL+VR)L/2
 }
 
 void Car::turnLeft(double rate)
@@ -111,21 +113,17 @@ int Car::speedRatioToPwm(double ratio)
 {
     double pwm;
 
-    // Negative values are normalized to 0
-    if (ratio <= 0)
-        ratio = 0;
-    // Values higher than 100% are normalized to 1
-    else if (ratio > 100)
-        ratio = 1;
-    // Values higher than 1 and lower or equal than 100 are normalized to the 0-1 interval
-    else if (ratio > 1)
-        ratio /= 100;
-    
     /* 
-     * the only other case: ratio > 0 and ratio <=1 
-     * is already in the proper format used by this function
+     * Negative speed ratio is allowed to express the will to move in reverse 
+     * but the PWM's duty cycle can only be positive, the negative part to 
+     * decide the direction must be managed elsewhere
      */
+    ratio = abs(ratio);
 
+    // Values higher than 1.0 are not allowed, stop the car
+    if (ratio > 1)
+        ratio = 0;
+    
     pwm = maxPwm * ratio;
 
     // Be sure to return a duty cycle of 0 or not less than the minimum
