@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <config.h>
 #include <WiFi.h>
 #include <../.pio/libdeps/esp32dev/PubSubClient/src/PubSubClient.h>
 #include <car/car.h>
@@ -13,84 +14,32 @@ unsigned long elapsedTime = 0;
 unsigned long debugResTime = 0;
 //---------------------------------------------------------------
 
-// Connection data
-const char *wifiSsid = "ESP32WiFi";                 // WiFi network SSID
-const char *wifiPass = "ESP32test";                 // WiFi Password
-const char *mqttServer = "http://192.168.4.1:1883"; // MQTT Broker IP address
+// The car should move or not
+bool move = false;
 
 WiFiClient wifiClient;               // Client WiFi
 PubSubClient mqttClient{wifiClient}; // Client MQTT
-long lastMsg = 0;
-char msg[50];
-int value = 0;
 
-// Front Motors
-const uint8_t MOTOR_FR_1 = 18; // FR Motor IN1 pin
-const uint8_t MOTOR_FR_2 = 19; // FR Motor IN2 pin
-const uint8_t MOTOR_FL_1 = 32; // FL Motor IN1 pin
-const uint8_t MOTOR_FL_2 = 33; // FL Motor IN2 pin
+int16_t volatile rpmFR = 0; // Front Right Motor's RPM
+int16_t volatile rpmFL = 0; // Front Left Motor's RPM
+int16_t volatile rpmRR = 0; // Rear Right Motor's RPM
+int16_t volatile rpmRL = 0; // Rear Left Motor's RPM
 
-// Rear Motors
-const uint8_t MOTOR_RR_1 = 16; // RR Motor IN1 pin
-const uint8_t MOTOR_RR_2 = 17; // RR Motor IN2 pin
-const uint8_t MOTOR_RL_1 = 26; // RL Motor IN1 pin
-const uint8_t MOTOR_RL_2 = 27; // RL Motor IN2 pin
-
-/** 
- * DRV8833 SLEEP pin
- * Both the drivers are connected to the same pin,
- * at the moment it is not necessary to disable them separately
- */
-const uint8_t MOTORS_EN = 5;
-
-// Car's dimensions in mm
-const uint16_t CARLENGTH = 256;  // Car's full length (mm)
-const uint16_t CARWIDTH = 153;   // Car's full width (mm)
-const uint16_t WHEELTRACK = 128; // Distance between the center of the wheels on the same axle (mm)
-const uint16_t WHEELBASE = 115;  // Distance between the front and rear axles (mm)
-const uint8_t WDIAMETER = 66;    // Wheels' diameter (mm)
-
-// Encoders' pins
-const uint8_t ENC_FR = 36; // Front Right Encoder, pin SP
-const uint8_t ENC_FL = 39; // Front Left Encoder, pin SN
-const uint8_t ENC_RR = 34; // Rear Right Encoder
-const uint8_t ENC_RL = 35; // Rear Left Encoder
-
-// Number of slots of the speed encoder
-const uint8_t ENC_SLOTS = 20;
-
-// Setting PWM properties
-const uint16_t FREQ = 50000;   // Change to uint32_t for frequencies higher than 65535
-const uint8_t PWM_CH_FR_1 = 0; // PWM channel front right IN1
-const uint8_t PWM_CH_FR_2 = 1; // PWM channel front right IN2
-const uint8_t PWM_CH_FL_1 = 2; // PWM channel front left IN1
-const uint8_t PWM_CH_FL_2 = 3; // PWM channel front left IN2
-const uint8_t PWM_CH_RR_1 = 4; // PWM channel rear right IN1
-const uint8_t PWM_CH_RR_2 = 5; // PWM channel rear right IN2
-const uint8_t PWM_CH_RL_1 = 6; // PWM channel rear left IN1
-const uint8_t PWM_CH_RL_2 = 7; // PWM channel rear left IN2
-const uint8_t RESOLUTION = 8;  // 8 bit - 0 to 255
-const uint8_t MAX_PWM = 255;   // Max PWM duty-cycle value
-const uint8_t MIN_PWM = 80;    // Min PWM duty-cycle value, make sure the motors run
-
-int16_t volatile rpmFR = 0; // FR Motor's RPM
-int16_t volatile rpmFL = 0; // FL Motor's RPM
-int16_t volatile rpmRR = 0; // RR Motor's RPM
-int16_t volatile rpmRL = 0; // RL Motor's RPM
-uint16_t pwmFR = 255;       // FR Motor's PWM
-uint16_t pwmFL = 255;       // FL Motor's PWM
-uint16_t pwmRR = 255;       // RR Motor's PWM
-uint16_t pwmRL = 255;       // RL Motor's PWM
+// Initial PWM values
+uint16_t pwmFR = 170; // Front Right Motor's PWM
+uint16_t pwmFL = 170; // Front Left Motor's PWM
+uint16_t pwmRR = 170; // Rear Right Motor's PWM
+uint16_t pwmRL = 170; // Rear Left Motor's PWM
 
 // Instantiate car parts
-Encoder encoderFR{ENC_SLOTS};                       // FR Encoder
-Encoder encoderFL{ENC_SLOTS};                       // FL Encoder
-Encoder encoderRR{ENC_SLOTS};                       // RR Encoder
-Encoder encoderRL{ENC_SLOTS};                       // RL Encoder
-Motor motorFR{PWM_CH_FR_1, PWM_CH_FR_2, encoderFR}; // FR Motor
-Motor motorFL{PWM_CH_FL_1, PWM_CH_FL_2, encoderFL}; // FL Motor
-Motor motorRR{PWM_CH_RR_1, PWM_CH_RR_2, encoderRR}; // RR Motor
-Motor motorRL{PWM_CH_RL_1, PWM_CH_RL_2, encoderRL}; // RL Motor
+Encoder encoderFR{ENC_SLOTS};                       // Front Right Encoder
+Encoder encoderFL{ENC_SLOTS};                       // Front Left Encoder
+Encoder encoderRR{ENC_SLOTS};                       // Rear Right Encoder
+Encoder encoderRL{ENC_SLOTS};                       // Rear Left Encoder
+Motor motorFR{PWM_CH_FR_1, PWM_CH_FR_2, encoderFR}; // Front Right Motor
+Motor motorFL{PWM_CH_FL_1, PWM_CH_FL_2, encoderFL}; // Front Left Motor
+Motor motorRR{PWM_CH_RR_1, PWM_CH_RR_2, encoderRR}; // Rear Right Motor
+Motor motorRL{PWM_CH_RL_1, PWM_CH_RL_2, encoderRL}; // Rear Left Motor
 Car car{CARLENGTH, CARWIDTH,
         WHEELTRACK, WHEELBASE, WDIAMETER,
         MAX_PWM, MIN_PWM,
@@ -101,7 +50,7 @@ Car car{CARLENGTH, CARWIDTH,
  */
 void IRAM_ATTR ISR_FR()
 {
-  // Current RPM value for the FR motor
+  // Current RPM value for the Front Right Motor
   int16_t newInput = car.getMotorFR().getEncoder().isr(nowTime);
 
   if (newInput != -1)
@@ -113,7 +62,7 @@ void IRAM_ATTR ISR_FR()
  */
 void IRAM_ATTR ISR_FL()
 {
-  // Current RPM value for the FL motor
+  // Current RPM value for the Front Left motor
   int16_t newInput = car.getMotorFL().getEncoder().isr(nowTime);
 
   if (newInput != -1)
@@ -125,7 +74,7 @@ void IRAM_ATTR ISR_FL()
  */
 void IRAM_ATTR ISR_RR()
 {
-  // Current RPM value for the RR motor
+  // Current RPM value for the Rear Right motor
   int16_t newInput = car.getMotorRR().getEncoder().isr(nowTime);
 
   if (newInput != -1)
@@ -137,7 +86,7 @@ void IRAM_ATTR ISR_RR()
  */
 void IRAM_ATTR ISR_RL()
 {
-  // Current RPM value for the RL motor
+  // Current RPM value for the Rear Left motor
   int16_t newInput = car.getMotorRL().getEncoder().isr(nowTime);
 
   if (newInput != -1)
@@ -211,15 +160,15 @@ void setupInterrupts()
 /**
  * Initialize the WiFi connection
  */
-void setup_wifi()
+void setupWifi()
 {
   delay(10);
 
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(wifiSsid);
+  Serial.println(WIFISSID);
 
-  WiFi.begin(wifiSsid, wifiPass);
+  WiFi.begin(WIFISSID, WIFIPASS);
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -233,25 +182,25 @@ void setup_wifi()
   Serial.println(WiFi.localIP());
 }
 
-void reconnect(const char *mqttServer)
+void reconnect()
 {
   // Loop until we're reconnected
   while (!mqttClient.connected())
   {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (mqttClient.connect(mqttServer))
+    if (mqttClient.connect(MQTTCLIENTID))
     {
       Serial.println("connected");
 
       // Subscribe to the topics
+      mqttClient.subscribe("Move");
       mqttClient.subscribe("Deviation");
       mqttClient.subscribe("Speed");
     }
     else
     {
       Serial.print("failed, rc=");
-      mqttClient.subscribe("Deviation");
       Serial.print(mqttClient.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
@@ -264,14 +213,9 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
   String messageTemp;
   double value;
-  
-  Serial.print("Message arrived on topic: ");
-  Serial.println(topic);
-  Serial.print("Message: ");
 
   for (int i = 0; i < length; i++)
   {
-    Serial.print((char)payload[i]);
     messageTemp += (char)payload[i];
   }
 
@@ -281,18 +225,45 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   // Check to which of the subscripions this message belongs to and take action
 
-  // Deviation says if the car needs to turn to follow the road
-  if (String(topic) == "Deviation")
+  if (String(topic) == "Move")
+  {
+    // value must be either 1 or 0, if it is not, set to 0
+    move = (value == 0 || value == 1) ? (int)value : 0;
+
+    // If move is false (0)
+    if (!move)
+      // Stop the car
+      car.brake();
+  }
+  /* 
+   * Deviation says if the car needs to turn to follow the road
+   * Execute only if the car is moving
+   */
+  else if (String(topic) == "Deviation" && value >= 0 && value <= 1 && move)
   {
     /*
-     * Values close (to decide how close) to 0 -> go straight
+     * Values close to 0 -> go straight
      * Positive value -> turn right
      * Negative value -> turn left
      */
-
+    if (abs(value) <= 0.1)
+    {
+      car.forward(pwmFR, pwmFL, pwmRR, pwmRL);
+    }
+    else if (value > 0)
+    {
+      car.turnRight(value);
+    }
+    else
+    {
+      car.turnLeft(value);
+    }
   }
-  // Speed says the speed in percentage, acceptable range format: -1.0 to 1.0
-  else if (String(topic) == "Speed")
+  /* 
+   * Speed says the speed in percentage, acceptable range format: -1.0 to 1.0
+   * Execute only if the car is moving
+   */
+  else if (String(topic) == "Speed" && move)
   {
     /*
      * 0 -> stop
@@ -302,52 +273,58 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     int pwm = car.speedRatioToPwm(value);
 
-    // move the car
-    if(value == 0)
+    // At the moment the PID control is disabled, thus, the PWM value is the same for all the wheels
+    pwmFR = pwm;
+    pwmFL = pwm;
+    pwmRR = pwm;
+    pwmRL = pwm;
+
+    // Move the car
+    if (value == 0)
     {
       car.brake();
     }
     else if (value > 0)
     {
-      car.forward(pwm, pwm, pwm, pwm);
+      car.forward(pwmFR, pwmFL, pwmRR, pwmRL);
     }
     else
     {
-      car.reverse(pwm, pwm, pwm, pwm);
+      car.reverse(pwmFR, pwmFL, pwmRR, pwmRL);
     }
   }
 }
 
+void setupMqtt()
+{
+  // Set the server IP address and port
+  mqttClient.setServer(MQTTSERVER, MQTTPORT);
+
+  // Assign the callback function to the MQTT Client
+  mqttClient.setCallback(callback);
+
+  reconnect();
+}
+
 void setup()
 {
+  Serial.begin(115200);
   setupPins();
   setupPWM();
   setupInterrupts();
-  setup_wifi();
-
-  // Assign the callback function to the MQTT Client
-  // mqttClient.setCallback(callback);
+  setupWifi();
+  setupMqtt();
 
   // Enable the motor driver
   digitalWrite(MOTORS_EN, HIGH);
-
-  Serial.begin(115200);
-
-  while (!Serial)
-  {
-    ; // Wait for serial to start
-  }
-
-  // Testing
-  Serial.println("Testing DC Motors...");
 }
 
 // Debug function
 void printRpm()
 {
   double speed;
-  double avgrpm;
-  avgrpm = (rpmFR + rpmFL + rpmRR + rpmRL) / 4;
+  uint16_t avgrpm;
+  avgrpm = (int)((rpmFR + rpmFL + rpmRR + rpmRL) / 4);
   speed = car.rpmToMs(avgrpm);
 
   Serial.println("----------------------------");
@@ -367,33 +344,6 @@ void printRpm()
   Serial.println();
 }
 
-void reconnect()
-{
-  // Loop until we're reconnected
-  while (!mqttClient.connected())
-  {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (mqttClient.connect("ESP8266Client"))
-    {
-      Serial.println("connected");
-
-      // Subscribe
-      mqttClient.subscribe("Deviation");
-      mqttClient.subscribe("Speed");
-    }
-    else
-    {
-      Serial.print("failed, rc=");
-      Serial.print(mqttClient.state());
-      Serial.println(" try again in 5 seconds");
-
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
-
 void loop()
 {
   // If the client is not connected to the MQTT server
@@ -409,15 +359,15 @@ void loop()
   mqttClient.loop();
 
   // Get the current timestamp
-  nowTime = millis();
-  elapsedTime = nowTime - startTime;
+  // nowTime = millis();
+  // elapsedTime = nowTime - startTime;
 
   // Debug
   // Print the motors' rpm each half a second
-  if (nowTime - debugResTime > 500)
-  {
-    printRpm();
+  // if (nowTime - debugResTime > 500)
+  // {
+  //   printRpm();
 
-    debugResTime = nowTime;
-  }
+  //   debugResTime = nowTime;
+  // }
 }

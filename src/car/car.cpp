@@ -46,16 +46,23 @@ Motor &Car::getMotorRL()
     return motorRL;
 }
 
-void Car::forward(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
+Car::Direction Car::getDirection()
 {
+    return direction;
+}
+
+void Car::forward(uint16_t &pwmFR, uint16_t &pwmFL, uint16_t &pwmRR, uint16_t &pwmRL)
+{
+    direction = Direction::fwd;
     motorFR.forward(pwmFR);
     motorFL.forward(pwmFL);
     motorRR.forward(pwmRR);
     motorRL.forward(pwmRL);
 }
 
-void Car::reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
+void Car::reverse(uint16_t &pwmFR, uint16_t &pwmFL, uint16_t &pwmRR, uint16_t &pwmRL)
 {
+    direction = Direction::rev;
     motorFR.reverse(pwmFR);
     motorFL.reverse(pwmFL);
     motorRR.reverse(pwmRR);
@@ -64,30 +71,71 @@ void Car::reverse(int pwmFR, int pwmFL, int pwmRR, int pwmRL)
 
 void Car::brake()
 {
+    direction = Direction::stop;
     motorFR.brake();
     motorFL.brake();
     motorRR.brake();
     motorRL.brake();
 }
 
-void Car::turnRight(double rate)
+void Car::turnRight(double &deviation)
 {
-    // TODO: slow down right wheels and/or accelerate left wheels
+    /*
+     * More deviation implies more speed difference between the two sides
+     * i.e. with a deviation of 0.8 (turn a lot) the left motors will turn 80% faster than the right motors
+     *      with a deviation of 0.2 (turn a bit) the left motors will turn 20% faster than the right motors
+     */
 
-    // Raggio curvatura = (VL+VR)L/2
+    // Left motors' speed, set to the minimum pwm value
+    uint16_t rightPwm = minPwm;
+
+    // Left motors' speed, deviation% faster than the right ones
+    uint16_t leftPwm = (int)(rightPwm + (rightPwm * deviation));
+    // Be sure that the pwm value is not higher than the maximum acceptable
+    leftPwm = leftPwm <= maxPwm ? leftPwm : maxPwm;
+
+    if (getDirection() == Direction::fwd)
+    {
+        forward(rightPwm, leftPwm, rightPwm, leftPwm);
+    }
+    else if (getDirection() == Direction::rev)
+    {
+        reverse(rightPwm, leftPwm, rightPwm, leftPwm);
+    }
 }
 
-void Car::turnLeft(double rate)
+void Car::turnLeft(double &deviation)
 {
-    // TODO: slow down left wheels and/or accelerate right wheels
+    /*
+     * More deviation implies more speed difference between the two sides
+     * i.e. with a deviation of 0.8 (turn a lot) the right motors will turn 80% faster than the left motors
+     *      with a deviation of 0.2 (turn a bit) the right motors will turn 20% faster than the left motors
+     */
+
+    // Left motors' speed, set to the minimum pwm value
+    uint16_t leftPwm = minPwm;
+
+    // Right motors' speed, deviation% faster than the left ones
+    uint16_t rightPwm = (int)(leftPwm + (leftPwm * deviation));
+    // Be sure that the pwm value is not higher than the maximum acceptable
+    rightPwm = rightPwm <= maxPwm ? rightPwm : maxPwm;
+
+    if (getDirection() == Direction::fwd)
+    {
+        forward(rightPwm, leftPwm, rightPwm, leftPwm);
+    }
+    else if (getDirection() == Direction::rev)
+    {
+        reverse(rightPwm, leftPwm, rightPwm, leftPwm);
+    }
 }
 
-int Car::mmToSlots(int mm)
+int Car::mmToSlots(uint16_t &mm)
 {
     return (int)round(mm / mmPerStep);
 }
 
-double Car::rpmToMs(int rpm)
+double Car::rpmToMs(uint16_t &rpm)
 {
     /*
      * diameter * pi = circumference in millimeters
@@ -98,7 +146,7 @@ double Car::rpmToMs(int rpm)
     return (((wheelDiameter * 3.14159265358979323846) / 1000) * rpm) / 60;
 }
 
-double Car::rpmToKmh(int rpm)
+double Car::rpmToKmh(uint16_t &rpm)
 {
     /*
      * diameter * pi = circumference in millimeters
@@ -109,25 +157,30 @@ double Car::rpmToKmh(int rpm)
     return (((wheelDiameter * 3.14159265358979323846) / 1000) * rpm) * 0.06;
 }
 
-int Car::speedRatioToPwm(double ratio)
+int Car::speedRatioToPwm(double &ratio)
 {
     double pwm;
+
+    // Values higher than 1.0 are not allowed, stop the car
+    if (abs(ratio) > 1)
+        ratio = 0;
 
     /* 
      * Negative speed ratio is allowed to express the will to move in reverse 
      * but the PWM's duty cycle can only be positive, the negative part to 
      * decide the direction must be managed elsewhere
      */
-    ratio = abs(ratio);
+    pwm = abs(maxPwm * ratio);
 
-    // Values higher than 1.0 are not allowed, stop the car
-    if (ratio > 1)
-        ratio = 0;
-    
-    pwm = maxPwm * ratio;
-
-    // Be sure to return a duty cycle of 0 or not less than the minimum
-    if (pwm != 0 && pwm < minPwm) pwm = minPwm;
+    // Be sure to return a duty cycle of 0 or not less than the minimum or not mor than the maximum
+    if (pwm != 0 && pwm < minPwm)
+    {
+        pwm = minPwm;
+    }
+    else if (pwm > maxPwm)
+    {
+        pwm = maxPwm;
+    }
 
     return (int)pwm;
 }

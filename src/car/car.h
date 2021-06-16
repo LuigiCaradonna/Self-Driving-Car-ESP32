@@ -7,6 +7,13 @@
 class Car
 {
 public:
+    enum Direction
+    {
+        fwd,
+        rev,
+        stop
+    };
+
     /**
      * Constructor.
      * 
@@ -63,12 +70,19 @@ public:
     Motor &getMotorRL();
 
     /**
+     * Gets the direction where the car is heading (fwd, rev, stop).
+     * 
+     * @return Car's direction
+     */
+    Direction getDirection();
+
+    /**
      * Given how many millimeters to move, returns how many encoedr's steps to count.
      * 
      * @param int distance in millimeters to move
      * @return the number of encoder's slots to count
      */
-    int mmToSlots(int);
+    int mmToSlots(uint16_t &);
 
     /**
      * Given the rpm (avg if more motors with different rpm are running) calculates the speed in m/s.
@@ -76,7 +90,7 @@ public:
      * @param int rpm
      * @return the speed in m/s
      */
-    double rpmToMs(int);
+    double rpmToMs(uint16_t &);
 
     /**
      * Given the rpm (avg if more motors with different rpm are running) calculates the speed in Km/h.
@@ -84,7 +98,7 @@ public:
      * @param int rpm
      * @return the speed in m/s
      */
-    double rpmToKmh(int);
+    double rpmToKmh(uint16_t &);
 
     /**
      * Set the motors for forward movement.
@@ -94,7 +108,7 @@ public:
      * @param int pwm value for the Rear Right motor
      * @param int pwm value for the Rear Left motor
      */
-    void forward(int, int, int, int);
+    void forward(uint16_t &, uint16_t &, uint16_t &, uint16_t &);
 
     /**
      * Set the motors for reverse movement.
@@ -104,7 +118,7 @@ public:
      * @param int pwm value for the Rear Right motor
      * @param int pwm value for the Rear Left motor
      */
-    void reverse(int, int, int, int);
+    void reverse(uint16_t &, uint16_t &, uint16_t &, uint16_t &);
 
     /**
      * Stop the car
@@ -114,21 +128,21 @@ public:
     /**
      * Set the motors to turn right.
      * 
-     * @param double how much to turn
+     * @param double how much to turn, must be a value within the range 0.0 to 1.0
      */
-    void turnRight(double);
+    void turnRight(double &);
 
     /**
      * Set the motors to turn left.
      * 
-     * @param double how much to turn
+     * @param double how much to turn, must be a value within the range 0.0 to 1.0
      */
-    void turnLeft(double);
+    void turnLeft(double &);
 
     /**
      * Given a speed ratio as an interval from 0.0 (stop) to 1.0 (full throttle), calculates 
      * the corresponding PWM duty cycle relative to the max value provided to the class constructor. 
-     * Negative values can be provided, they will be converted to positive. 
+     * Negative values can be provided to specify a backward movement. 
      * The method also takes care to do not return a value lower than the minimum 
      * provided to the class constructor, unless it has to return 0 which is an acceptable value. 
      * 
@@ -137,7 +151,7 @@ public:
      * @param double the wanted speed ratio in the interval 0.0 (stop) to 1.0 (full throttle)
      * @return the duty cycle to set for the PWM pins to have the wanted speed
      */
-    int speedRatioToPwm(double);
+    int speedRatioToPwm(double &);
     
 private:
     /**
@@ -152,6 +166,9 @@ private:
     double mmPerStep;
     // References to the motors instances
     Motor &motorFR, &motorFL, &motorRR, &motorRL;
+
+    // Car's direction (fwd, rev, stop)
+    Direction direction;
 };
 
 #endif
