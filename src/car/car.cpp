@@ -86,7 +86,7 @@ void Car::turnRight(double &deviation)
      *      with a deviation of 0.2 (turn a bit) the left motors will turn 20% faster than the right motors
      */
 
-    // Left motors' speed, set to the minimum pwm value
+    // Right motors' speed, set to the minimum pwm value
     uint16_t rightPwm = minPwm;
 
     // Left motors' speed, deviation% faster than the right ones

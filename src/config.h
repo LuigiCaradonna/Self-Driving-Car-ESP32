@@ -2,8 +2,8 @@
 #define WIFISSID "Home&Life SuperWiFi-133D" // WiFi network SSID
 #define WIFIPASS "YPXAM4PQ7QEL44NG"         // WiFi Password
 #define MQTTSERVER "192.168.1.250"          // MQTT Server IP address
+#define MQTTPORT 1883                       // MQTT Server Port
 #define MQTTCLIENTID "ESP32Client"          // MQTT Client ID
-#define MQTTPORT 1883
 
 // Front Motors
 #define MOTOR_FR_1 18 // FR Motor IN1 pin
