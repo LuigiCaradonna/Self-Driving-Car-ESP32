@@ -7,6 +7,7 @@ Car::Car(uint16_t _length,
          uint8_t _wheelDiameter,
          uint8_t _maxPwm,
          uint8_t _minPwm,
+         double _turnSpeedMultiplier,
          Motor &_motorFR,
          Motor &_motorFL,
          Motor &_motorRR,
@@ -17,6 +18,7 @@ Car::Car(uint16_t _length,
                             wheelDiameter{_wheelDiameter},
                             maxPwm{_maxPwm},
                             minPwm{_minPwm},
+                            turnSpeedMultiplier{_turnSpeedMultiplier},
                             motorFR{_motorFR},
                             motorFL{_motorFL},
                             motorRR{_motorRR},
@@ -51,18 +53,18 @@ Car::Direction Car::getDirection()
     return direction;
 }
 
-void Car::forward(uint16_t &pwmFR, uint16_t &pwmFL, uint16_t &pwmRR, uint16_t &pwmRL)
+void Car::forward(const uint16_t &pwmFR, const uint16_t &pwmFL, const uint16_t &pwmRR, const uint16_t &pwmRL)
 {
-    direction = Direction::fwd;
+    direction = Direction::FWD;
     motorFR.forward(pwmFR);
     motorFL.forward(pwmFL);
     motorRR.forward(pwmRR);
     motorRL.forward(pwmRL);
 }
 
-void Car::reverse(uint16_t &pwmFR, uint16_t &pwmFL, uint16_t &pwmRR, uint16_t &pwmRL)
+void Car::reverse(const uint16_t &pwmFR, const uint16_t &pwmFL, const uint16_t &pwmRR, const uint16_t &pwmRL)
 {
-    direction = Direction::rev;
+    direction = Direction::REV;
     motorFR.reverse(pwmFR);
     motorFL.reverse(pwmFL);
     motorRR.reverse(pwmRR);
@@ -71,71 +73,75 @@ void Car::reverse(uint16_t &pwmFR, uint16_t &pwmFL, uint16_t &pwmRR, uint16_t &p
 
 void Car::brake()
 {
-    direction = Direction::stop;
+    direction = Direction::STOP;
     motorFR.brake();
     motorFL.brake();
     motorRR.brake();
     motorRL.brake();
 }
 
-void Car::turnRight(double &deviation)
+void Car::turnRight(const double &deviation)
 {
     /*
      * More deviation implies more speed difference between the two sides
-     * i.e. with a deviation of 0.8 (turn a lot) the left motors will turn 80% faster than the right motors
-     *      with a deviation of 0.2 (turn a bit) the left motors will turn 20% faster than the right motors
+     * i.e. with a deviation of 0.8 (turn a lot) the left motors will receive a PWM value 80% higher than the right motors
+     *      with a deviation of 0.2 (turn a bit) the left motors will receive a PWM value 20% higher than the right motors
+     * 
+     * To those values, an additional multiplier (turnSpeedMultiplier) is needed or the difference in speed would be to low
      */
 
     // Right motors' speed, set to the minimum pwm value
     uint16_t rightPwm = minPwm;
 
-    // Left motors' speed, deviation% faster than the right ones
-    uint16_t leftPwm = (int)(rightPwm + (rightPwm * deviation));
+    // Set the left motors' to run faster than the right ones
+    uint16_t leftPwm = (int)((rightPwm + (rightPwm * deviation)) * turnSpeedMultiplier);
     // Be sure that the pwm value is not higher than the maximum acceptable
     leftPwm = leftPwm <= maxPwm ? leftPwm : maxPwm;
 
-    if (getDirection() == Direction::fwd)
+    if (getDirection() == Direction::FWD)
     {
         forward(rightPwm, leftPwm, rightPwm, leftPwm);
     }
-    else if (getDirection() == Direction::rev)
+    else if (getDirection() == Direction::REV)
     {
         reverse(rightPwm, leftPwm, rightPwm, leftPwm);
     }
 }
 
-void Car::turnLeft(double &deviation)
+void Car::turnLeft(const double &deviation)
 {
     /*
      * More deviation implies more speed difference between the two sides
-     * i.e. with a deviation of 0.8 (turn a lot) the right motors will turn 80% faster than the left motors
-     *      with a deviation of 0.2 (turn a bit) the right motors will turn 20% faster than the left motors
+     * i.e. with a deviation of 0.8 (turn a lot) the right motors will receive a PWM value 80% higher than the left motors
+     *      with a deviation of 0.2 (turn a bit) the right motors will receive a PWM value 20% higher than the left motors
+     * 
+     * To those values, an additional multiplier (turnSpeedMultiplier) is needed or the difference in speed would be to low
      */
 
     // Left motors' speed, set to the minimum pwm value
     uint16_t leftPwm = minPwm;
 
-    // Right motors' speed, deviation% faster than the left ones
-    uint16_t rightPwm = (int)(leftPwm + (leftPwm * deviation));
+    // Set the right motors' to run faster than the left ones
+    uint16_t rightPwm = (int)((leftPwm + (leftPwm * deviation)) * turnSpeedMultiplier);
     // Be sure that the pwm value is not higher than the maximum acceptable
     rightPwm = rightPwm <= maxPwm ? rightPwm : maxPwm;
 
-    if (getDirection() == Direction::fwd)
+    if (getDirection() == Direction::FWD)
     {
         forward(rightPwm, leftPwm, rightPwm, leftPwm);
     }
-    else if (getDirection() == Direction::rev)
+    else if (getDirection() == Direction::REV)
     {
         reverse(rightPwm, leftPwm, rightPwm, leftPwm);
     }
 }
 
-int Car::mmToSlots(uint16_t &mm)
+int Car::mmToSlots(const uint16_t &mm)
 {
     return (int)round(mm / mmPerStep);
 }
 
-double Car::rpmToMs(uint16_t &rpm)
+double Car::rpmToMs(const uint16_t &rpm)
 {
     /*
      * diameter * pi = circumference in millimeters
@@ -146,7 +152,7 @@ double Car::rpmToMs(uint16_t &rpm)
     return (((wheelDiameter * 3.14159265358979323846) / 1000) * rpm) / 60;
 }
 
-double Car::rpmToKmh(uint16_t &rpm)
+double Car::rpmToKmh(const uint16_t &rpm)
 {
     /*
      * diameter * pi = circumference in millimeters
@@ -157,13 +163,13 @@ double Car::rpmToKmh(uint16_t &rpm)
     return (((wheelDiameter * 3.14159265358979323846) / 1000) * rpm) * 0.06;
 }
 
-int Car::speedRatioToPwm(double &ratio)
+int Car::speedRatioToPwm(const double &ratio)
 {
     double pwm;
 
     // Values higher than 1.0 are not allowed, stop the car
     if (abs(ratio) > 1)
-        ratio = 0;
+        return  0;
 
     /* 
      * Negative speed ratio is allowed to express the will to move in reverse 
@@ -172,7 +178,7 @@ int Car::speedRatioToPwm(double &ratio)
      */
     pwm = abs(maxPwm * ratio);
 
-    // Be sure to return a duty cycle of 0 or not less than the minimum or not mor than the maximum
+    // Be sure to return a duty cycle of 0 or not less than the minimum or not more than the maximum
     if (pwm != 0 && pwm < minPwm)
     {
         pwm = minPwm;

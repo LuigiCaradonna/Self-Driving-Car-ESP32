@@ -9,25 +9,26 @@ class Car
 public:
     enum Direction
     {
-        fwd,
-        rev,
-        stop
+        FWD,
+        REV,
+        STOP
     };
 
     /**
      * Constructor.
      * 
-     * @param uint16_t car length in mm
-     * @param uint16_t car width in mm
-     * @param uint16_t wheeltrack in mm
-     * @param uint16_t wheelbase in mm
-     * @param uint8_t wheels diameter in mm
-     * @param uint8_t max pwm duty cycle
-     * @param uint8_t min pwm duty cycle
-     * @param Motor front right motor
-     * @param Motor front left motor
-     * @param Motor rear right motor
-     * @param Motor rear left motor
+     * @param uint16_t length - Length in mm
+     * @param uint16_t width - Width in mm
+     * @param uint16_t wheeltrack - Wheeltrack in mm
+     * @param uint16_t wheelbase - Wheelbase in mm
+     * @param uint8_t wheelDiameter - Wheels diameter in mm
+     * @param uint8_t maxPwm - Max pwm duty cycle
+     * @param uint8_t minPwm - Min pwm duty cycle
+     * @param double turnSpeedMultiplier - Multiplier for turning speed
+     * @param Motor motorFR - Front right motor
+     * @param Motor motorFL - Front left motor
+     * @param Motor motorRR - Rear right motor
+     * @param Motor motorRL - Rear left motor
      */
     Car(uint16_t,
         uint16_t,
@@ -36,6 +37,7 @@ public:
         uint8_t,
         uint8_t,
         uint8_t,
+        double,
         Motor &,
         Motor &,
         Motor &,
@@ -82,7 +84,7 @@ public:
      * @param int distance in millimeters to move
      * @return the number of encoder's slots to count
      */
-    int mmToSlots(uint16_t &);
+    int mmToSlots(const uint16_t &);
 
     /**
      * Given the rpm (avg if more motors with different rpm are running) calculates the speed in m/s.
@@ -90,7 +92,7 @@ public:
      * @param int rpm
      * @return the speed in m/s
      */
-    double rpmToMs(uint16_t &);
+    double rpmToMs(const uint16_t &);
 
     /**
      * Given the rpm (avg if more motors with different rpm are running) calculates the speed in Km/h.
@@ -98,7 +100,7 @@ public:
      * @param int rpm
      * @return the speed in m/s
      */
-    double rpmToKmh(uint16_t &);
+    double rpmToKmh(const uint16_t &);
 
     /**
      * Set the motors for forward movement.
@@ -108,7 +110,7 @@ public:
      * @param int pwm value for the Rear Right motor
      * @param int pwm value for the Rear Left motor
      */
-    void forward(uint16_t &, uint16_t &, uint16_t &, uint16_t &);
+    void forward(const uint16_t &, const uint16_t &, const uint16_t &, const uint16_t &);
 
     /**
      * Set the motors for reverse movement.
@@ -118,10 +120,10 @@ public:
      * @param int pwm value for the Rear Right motor
      * @param int pwm value for the Rear Left motor
      */
-    void reverse(uint16_t &, uint16_t &, uint16_t &, uint16_t &);
+    void reverse(const uint16_t &, const uint16_t &, const uint16_t &, const uint16_t &);
 
     /**
-     * Stop the car
+     * Stops the car
      */
     void brake();
 
@@ -130,14 +132,14 @@ public:
      * 
      * @param double how much to turn, must be a value within the range 0.0 to 1.0
      */
-    void turnRight(double &);
+    void turnRight(const double &);
 
     /**
      * Set the motors to turn left.
      * 
      * @param double how much to turn, must be a value within the range 0.0 to 1.0
      */
-    void turnLeft(double &);
+    void turnLeft(const double &);
 
     /**
      * Given a speed ratio as an interval from 0.0 (stop) to 1.0 (full throttle), calculates 
@@ -151,7 +153,7 @@ public:
      * @param double the wanted speed ratio in the interval 0.0 (stop) to 1.0 (full throttle)
      * @return the duty cycle to set for the PWM pins to have the wanted speed
      */
-    int speedRatioToPwm(double &);
+    int speedRatioToPwm(const double &);
     
 private:
     /**
@@ -161,6 +163,7 @@ private:
      */
     const uint16_t length, width, wheeltrack, wheelbase;
     const uint8_t wheelDiameter, maxPwm, minPwm;
+    const double turnSpeedMultiplier;
 
     // Distance in mm covered for each encoder's step
     double mmPerStep;
