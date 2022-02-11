@@ -71,7 +71,7 @@ void Car::reverse(const uint16_t &pwmFR, const uint16_t &pwmFL, const uint16_t &
     motorRL.reverse(pwmRL);
 }
 
-void Car::brake()
+void Car::stop()
 {
     direction = Direction::STOP;
     motorFR.brake();

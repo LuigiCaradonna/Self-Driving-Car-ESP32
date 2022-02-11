@@ -268,7 +268,7 @@ void callback(char *topic, byte *message, unsigned int length)
   if (String(topic) == "Mode" && mString == "s")
   {
     // Stop the car
-    car.brake();
+    car.stop();
     move = false;
   }
   else if (String(topic) == "Mode" && mString == "d")
@@ -286,7 +286,7 @@ void callback(char *topic, byte *message, unsigned int length)
     mValue = (double)atof((char*) message); // mString.toDouble();
 
     // If the absolute value of the deviation is between 0 and 1 and the car can move
-    if (abs(mValue) >= 0 && abs(mValue) <= 1 && move)
+    if (mValue >= -1 && mValue <= 1 && move)
     {
       Serial.print("Deviation: ");
       Serial.println(mValue);
@@ -314,9 +314,6 @@ void callback(char *topic, byte *message, unsigned int length)
         car.turnLeft(mValue);
       }
     }
-
-    // TODO: this is only meant as debugging, to be removed
-    // printRpm();
   }
 
   /*
@@ -355,19 +352,17 @@ void setup()
 
 void loop()
 {
-  // If the client is not connected to the MQTT server
-  if (!mqttClient.connected())
-  {
-    // Stop the car
-    car.brake();
-    // Connect to the MQTT server
-    reconnect();
-  }
-
   if (mqttClient.connected())
   {
     // Call the MQTT client loop
     mqttClient.loop();
+  }
+  else
+  {
+    // Stop the car
+    car.stop();
+    // Connect to the MQTT server
+    reconnect();
   }
   
   // Get the current timestamp

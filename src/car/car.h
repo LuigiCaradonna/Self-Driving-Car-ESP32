@@ -125,7 +125,7 @@ public:
     /**
      * Stops the car
      */
-    void brake();
+    void stop();
 
     /**
      * Set the motors to turn right.
@@ -148,7 +148,7 @@ public:
      * The method also takes care to do not return a value lower than the minimum 
      * provided to the class constructor, unless it has to return 0 which is an acceptable value. 
      * 
-     * WARNING: When you want a speed of 0 you should use the Car::brake() method to stop the car.
+     * WARNING: When you want a speed of 0 you should use the Car::stop() method to stop the car.
      * 
      * @param double the wanted speed ratio in the interval 0.0 (stop) to 1.0 (full throttle)
      * @return the duty cycle to set for the PWM pins to have the wanted speed
